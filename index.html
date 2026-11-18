@@ -1,0 +1,2205 @@
+<!doctype html><html><head><meta charset=utf8><title>Kairos: earning autonomy for AI agents</title><meta name="description" content="An interactive explainer for Kairos, a conformal policy-control layer that lets an AI agent do more only when the evidence says it is safe."><meta property="og:title" content="Kairos: earning autonomy for AI agents"><meta property="og:type" content="website"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<style>
+/* Layout: sticky top bar, desktop table of contents on the left, one reading column of numbered chapters, each with a kid-words box, full-detail text, and a live demo. */
+:root{
+  --bg:#ECEFE9; --surface:#F9FAF6; --surface2:#E0E5DC; --ink:#14201C; --ink2:#4A5A53; --line:#CBD3C8;
+  --blue:#0B5D66; --blue-soft:#D3E8E8; --orange:#B26A12; --orange-soft:#F5E6CC;
+  --green:#3B7A22; --green-soft:#E0EDD2; --red:#B02A22; --red-soft:#F5DAD5;
+  --kid:#FFF3D1; --kid-line:#E3BE55; --kid-ink:#4A3A07;
+  --f-display:'Times New Roman',Times,'Liberation Serif','Nimbus Roman',serif;
+  --f-body:'Times New Roman',Times,'Liberation Serif','Nimbus Roman',serif;
+  --f-mono:'Times New Roman',Times,'Liberation Serif','Nimbus Roman',serif;
+  --f-code:'Courier New',Courier,'Liberation Mono',monospace;
+  --paper:none;
+  --shadow:0 1px 2px rgba(20,32,28,.06),0 8px 24px rgba(20,32,28,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1513; --surface:#151F1C; --surface2:#1D2B27; --ink:#E7ECE5; --ink2:#A2B3AA; --line:#2A3B35;
+    --blue:#5CC3CB; --blue-soft:#123236; --orange:#E6A24A; --orange-soft:#3A2B12;
+    --green:#8CCB62; --green-soft:#22301A; --red:#EE7B6C; --red-soft:#3B1D19;
+    --kid:#2E2913; --kid-line:#7A6624; --kid-ink:#F2E4B0;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1513; --surface:#151F1C; --surface2:#1D2B27; --ink:#E7ECE5; --ink2:#A2B3AA; --line:#2A3B35;
+  --blue:#5CC3CB; --blue-soft:#123236; --orange:#E6A24A; --orange-soft:#3A2B12;
+  --green:#8CCB62; --green-soft:#22301A; --red:#EE7B6C; --red-soft:#3B1D19;
+  --kid:#2E2913; --kid-line:#7A6624; --kid-ink:#F2E4B0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px;font-size:17px}
+body{background:var(--bg);color:var(--ink);font:1rem/1.6 var(--f-body);-webkit-font-smoothing:antialiased;padding-inline:16px}
+h1,h2,h3{font-family:var(--f-display);font-weight:600;line-height:1.2;text-wrap:balance;margin:0}
+p{margin:0 0 1em}
+a{color:var(--blue)}
+code,.mono{font-family:var(--f-code);font-size:.9em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:4px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:50;margin-inline:-16px;padding:10px 16px;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top-in{max-width:1240px;margin:auto;display:flex;align-items:center;gap:16px;justify-content:space-between;flex-wrap:wrap}
+.brand{font-family:var(--f-display);font-weight:700;font-size:1.15rem;letter-spacing:.01em;display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.brand svg{width:22px;height:22px}
+.seg{display:inline-flex;background:var(--surface2);border-radius:999px;padding:3px;border:1px solid var(--line)}
+.seg button{border:0;background:transparent;padding:6px 14px;border-radius:999px;font-size:.84rem;font-weight:500;color:var(--ink2)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.prog{position:absolute;left:0;bottom:-1px;height:2px;width:100%;transform-origin:left;transform:scaleX(0);background:var(--blue)}
+
+/* shell */
+.shell{max-width:1240px;margin:auto;display:grid;grid-template-columns:1fr;gap:40px;padding-block:32px 80px}
+.toc{display:none}
+@media(min-width:1100px){
+  .shell{grid-template-columns:210px minmax(0,1fr)}
+  .toc{display:block;position:sticky;top:90px;align-self:start;max-height:calc(100vh - 110px);overflow:auto}
+}
+.toc ol{list-style:none;margin:0;padding:0;border-left:1px solid var(--line)}
+.toc a{display:block;padding:5px 0 5px 14px;margin-left:-1px;border-left:2px solid transparent;color:var(--ink2);text-decoration:none;font-size:.86rem}
+.toc a:hover{color:var(--ink)}
+.toc a.on{border-left-color:var(--blue);color:var(--ink);font-weight:600}
+.toc small{display:block;font:600 .8rem var(--f-body);color:var(--ink2);margin-bottom:10px}
+main{min-width:0;max-width:860px}
+
+/* hero */
+.hero{padding-block:8px 8px}
+.eyebrow{font:600 .85rem var(--f-body);color:var(--blue);margin-bottom:12px}
+.hero h1{font-size:clamp(2.1rem,5.2vw,3.5rem);margin-bottom:18px}
+.lede{font-size:1.18rem;color:var(--ink2);max-width:62ch}
+.chips{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0}
+.chip{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px;min-width:0;flex:1 1 190px}
+.chip b{display:block;font:600 1.9rem var(--f-display);font-variant-numeric:tabular-nums;color:var(--blue)}
+.chip span{font-size:.86rem;color:var(--ink2)}
+.heroart{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 6px;box-shadow:var(--shadow)}
+.heroart svg{width:100%;height:auto;display:block}
+.heroart figcaption{font-size:.84rem;color:var(--ink2);padding:6px 4px 8px}
+.climb{stroke-dasharray:100;stroke-dashoffset:0;animation:draw 9s linear infinite}
+@keyframes draw{0%{stroke-dashoffset:100}75%{stroke-dashoffset:0}100%{stroke-dashoffset:0}}
+
+/* chapters */
+section.ch{padding-block:56px 8px;border-top:1px solid var(--line);margin-top:40px}
+section.ch:first-of-type{border-top:0}
+.tag{display:none}
+section.ch h2{font-size:clamp(1.6rem,3.4vw,2.2rem);margin-bottom:16px}
+section.ch h3{font-size:1.2rem;margin:28px 0 10px}
+.kid{background:var(--kid);border:1px solid var(--kid-line);color:var(--kid-ink);border-radius:12px;padding:14px 18px;margin:18px 0}
+.kid::before{content:"In plain words";display:block;font:600 .8rem var(--f-body);margin-bottom:4px;opacity:.85}
+.kid p:last-child{margin:0}
+body[data-mode="simple"] .tech{display:none}
+.tech{max-width:68ch}
+.demo.tech{max-width:none}
+.note{font-size:.84rem;color:var(--ink2);border-left:2px solid var(--line);padding-left:12px;margin:12px 0}
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;margin:22px 0;box-shadow:var(--shadow)}
+.demo>h4{margin:0 0 6px;font:600 1rem var(--f-body);color:var(--ink)}
+.demo>p.sub{font-size:.9rem;color:var(--ink2);margin-bottom:14px}
+.btn{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:7px 14px;font-size:.88rem;font-weight:500}
+.btn:hover{border-color:var(--blue)}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.ctl{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1 1 200px;font-size:.84rem;color:var(--ink2)}
+.ctl output{font:500 .9rem var(--f-mono);color:var(--ink)}
+.ctl span{display:flex;justify-content:space-between;gap:8px}
+input[type=range]{width:100%;accent-color:var(--blue)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr))}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card h3,.card h4{margin:0 0 6px;font-size:1.02rem}
+.card p{font-size:.92rem;color:var(--ink2);margin:0 0 8px}
+.card p:last-child{margin:0}
+.pill{display:inline-block;font:500 .72rem var(--f-mono);padding:2px 9px;border-radius:999px;background:var(--surface2);color:var(--ink2);border:1px solid var(--line)}
+.pill.g{background:var(--green-soft);color:var(--green);border-color:transparent}
+.pill.r{background:var(--red-soft);color:var(--red);border-color:transparent}
+.pill.b{background:var(--blue-soft);color:var(--blue);border-color:transparent}
+.pill.o{background:var(--orange-soft);color:var(--orange);border-color:transparent}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink2)}
+td.num{font-variant-numeric:tabular-nums}
+.formula{font-family:var(--f-code);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:10px 14px;overflow-x:auto;font-size:.88rem;margin:12px 0}
+
+/* stats band */
+  .band{border-block:1px solid var(--line);padding:18px 4px;margin:28px 0;font-weight:500;font-size:1.05rem;line-height:1.6}
+.band small{display:block;font:600 .8rem var(--f-body);color:var(--ink2);margin-bottom:6px}
+
+/* story */
+.story{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.panel h4{margin:0;font-size:.98rem;font-family:var(--f-display)}
+.panel p{font-size:.88rem;color:var(--ink2);margin:0}
+.meter{height:10px;border-radius:99px;background:var(--surface2);overflow:hidden;position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:99px;background:var(--blue)}
+.meter i.o{background:var(--orange)}
+.meter i.g{background:var(--green)}
+.m-pulse{animation:mp 4s ease-in-out infinite}
+@keyframes mp{0%,100%{width:12%}50%{width:88%}}
+.m-fixed{width:100%;opacity:.35;background:var(--ink2)}
+.m-stair{animation:ms 8s steps(1,end) infinite}
+@keyframes ms{0%{width:10%}20%{width:25%}40%{width:42%}60%{width:60%}78%{width:6%}90%{width:22%}100%{width:22%}}
+.mini{font:500 .72rem var(--f-mono);color:var(--ink2);display:flex;justify-content:space-between}
+
+/* loop stepper */
+.pipe{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,128px),1fr))}
+.pipe button{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:10px 10px;text-align:left;font-size:.84rem;line-height:1.35;position:relative;min-height:84px}
+.pipe button b{display:block;font:500 .7rem var(--f-mono);color:var(--ink2);margin-bottom:4px;letter-spacing:.08em}
+.pipe button[aria-current="step"]{background:var(--blue-soft);border-color:var(--blue);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue) 22%,transparent)}
+.pipe button[aria-current="step"] b{color:var(--blue)}
+.stepbody{margin-top:14px;min-height:150px}
+.stepbody h4{font-family:var(--f-display);font-size:1.15rem;margin:0 0 6px}
+.token{height:3px;background:var(--surface2);border-radius:3px;margin:14px 0 0;overflow:hidden}
+.token i{display:block;height:100%;width:0;background:var(--blue)}
+
+/* architecture */
+.arch{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));align-items:stretch}
+.node{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:.84rem;min-width:0}
+.node b{display:block;font-size:.88rem;margin-bottom:2px}
+.node.hot{border-color:var(--blue);background:var(--blue-soft)}
+.node.sand{border-color:var(--orange);background:var(--orange-soft)}
+
+/* canvas + svg demos */
+canvas.cv{width:100%;height:340px;display:block;border-radius:10px;background:var(--surface2)}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,130px),1fr));margin-top:12px}
+.stat{background:var(--surface2);border-radius:10px;padding:8px 12px}
+.stat b{display:block;font:600 1.3rem var(--f-display);font-variant-numeric:tabular-nums}
+.stat span{font-size:.76rem;color:var(--ink2)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.8rem;color:var(--ink2);margin-top:10px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+svg.chart{width:100%;height:auto;display:block}
+svg text{font-family:var(--f-mono);fill:var(--ink2)}
+.verdict{margin-top:12px;padding:10px 14px;border-radius:10px;font-weight:500;font-size:.94rem}
+.verdict.ok{background:var(--green-soft);color:var(--green)}
+.verdict.no{background:var(--red-soft);color:var(--red)}
+.verdict.mid{background:var(--surface2);color:var(--ink)}
+
+/* bars */
+.bars{display:grid;gap:10px}
+.brow{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:center;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;text-align:left}
+.brow[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.brow .nm{font-size:.9rem;font-weight:500;line-height:1.3}
+.brow .nm small{display:block;font-weight:400;color:var(--ink2);font-size:.78rem}
+.bar{position:relative;height:18px;background:var(--surface2);border-radius:5px}
+.bar i{position:absolute;left:0;top:0;bottom:0;border-radius:5px;transform-origin:left;background:var(--blue)}
+.bar i.o{background:var(--orange)}
+.bar i.bad{background:var(--red)}
+.bar i.ref{background:var(--ink2)}
+.bar em{position:absolute;right:6px;top:50%;transform:translateY(-50%);font:500 .74rem var(--f-mono);font-style:normal;color:var(--ink)}
+.bar .al{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--ink)}
+.bhead{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) minmax(0,1fr);gap:14px;padding:0 14px;font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink2)}
+@media(max-width:640px){
+  .brow,.bhead{grid-template-columns:1fr}
+  .bhead{display:none}
+  .bar-lbl{display:block}
+}
+.bar-lbl{display:none;font:500 .68rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);margin-bottom:3px}
+@media(max-width:640px){.bar-lbl{display:block}}
+.in .bar i,.bar.in i{animation:grow 1s cubic-bezier(.2,.7,.2,1) both}
+@keyframes grow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.reveal.in{animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{transform:translateY(14px)}to{transform:none}}
+
+/* seeds */
+.seeds{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;max-width:420px}
+.seeds i{aspect-ratio:1;border-radius:6px;background:var(--green-soft);border:1px solid var(--green);transition:background .35s,border-color .35s}
+.seeds i.x{background:var(--red-soft);border-color:var(--red)}
+.big{font:600 2.6rem var(--f-display);line-height:1;font-variant-numeric:tabular-nums}
+.tl{display:grid;grid-template-columns:90px repeat(6,minmax(0,1fr));gap:6px;align-items:center;font-size:.76rem}
+.tl .c{height:34px;border-radius:6px;display:grid;place-items:center;font:500 .7rem var(--f-mono);background:var(--green-soft);color:var(--green)}
+.tl .c.x{background:var(--red-soft);color:var(--red)}
+.tl .h{font:500 .68rem var(--f-mono);text-align:center;color:var(--ink2)}
+.tl .l{font-weight:500}
+
+details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:0 16px;margin-bottom:8px}
+details summary{cursor:pointer;padding:12px 0;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:12px}
+details summary::after{content:"+";font:500 1.1rem var(--f-mono);color:var(--ink2)}
+details[open] summary::after{content:"–"}
+details p{color:var(--ink2);font-size:.94rem}
+footer{border-top:1px solid var(--line);margin-top:70px;padding-top:24px;color:var(--ink2);font-size:.86rem}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+.t3wrap{position:relative;border-radius:10px;overflow:hidden;background:var(--surface2);height:470px;touch-action:pan-y;cursor:grab}
+.t3wrap canvas{display:block;width:100%;height:100%}
+@media(max-width:640px){.t3wrap{height:400px}}
+.lab{position:absolute;transform:translate(-50%,-100%);font:500 12.5px var(--f-mono);background:color-mix(in srgb,var(--surface) 88%,transparent);border:1px solid var(--line);padding:2px 8px;border-radius:6px;pointer-events:none;white-space:nowrap;color:var(--ink)}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:-1px}
+.feed{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:6px;font-size:.88rem;color:var(--ink2);min-height:40px}
+.feed li{background:var(--surface2);border-radius:8px;padding:6px 12px}
+
+.tabs{display:flex;gap:2px;order:2;flex:1 1 auto;justify-content:center}
+.tabs button{border:0;background:transparent;padding:8px 16px;font-weight:600;font-size:.92rem;color:var(--ink2);border-bottom:2px solid transparent;border-radius:6px 6px 0 0}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--blue)}
+.top .brand{order:1}.top .seg{order:3}
+@media(max-width:700px){.tabs{order:4;flex-basis:100%;justify-content:flex-start}}
+#tabTech{max-width:960px}
+#tabTech .hero h1{font-weight:600}
+.cta{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:22px 0}
+.cta p{margin:0;font-size:.94rem;color:var(--ink2);flex:1 1 280px}
+.sel{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+.xgrid{display:grid;gap:16px;grid-template-columns:minmax(0,1fr)}
+@media(min-width:980px){.xgrid{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)}}
+.xtab{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:0 4px 10px}
+.xtab table{font-size:.82rem}
+.xtab th{position:sticky;top:0;background:var(--surface);z-index:1}
+.xtab td,.xtab th{padding:7px 9px}
+#xBody tr{cursor:pointer}
+#xBody tr:hover{background:var(--surface2)}
+#xBody tr.sel{background:var(--blue-soft)}
+#xBody tr.vi td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+.xdetail{background:var(--surface2);border-radius:10px;padding:16px 18px;font-size:.92rem;max-height:520px;overflow:auto}
+.xdetail p{color:var(--ink);margin:0 0 .8em}
+.steps{padding-left:1.2em;margin:0 0 18px;display:grid;gap:8px;max-width:76ch}
+.code{background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:14px 18px;overflow-x:auto;font:400 .84rem/1.6 var(--f-code);margin:12px 0}
+.plain{padding-left:1.2em;display:grid;gap:10px;max-width:76ch}
+body[data-tab="tech"] .kid{display:none}
+.oneline{font-weight:600;margin:0 0 14px;max-width:70ch}
+.short{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin:24px 0}
+.short h3{margin:0 0 10px;font-size:1.1rem}
+.short ol{margin:0;padding-left:1.3em;display:grid;gap:8px;font-size:.95rem}
+.short li b{font-weight:600}
+#lookBtn{order:4}
+/* ===== PAPER LOOK (experimental). Delete this block, or press "Original look" in the header, to go back. ===== */
+:root[data-look="paper"]{
+  --bg:#FFFFFF;--surface:#FFFFFF;--surface2:#F4F2EC;--ink:#161616;--ink2:#494845;--line:#D9D5CA;
+  --blue:#0B5D66;--blue-soft:#D7EAEA;--orange:#A9640F;--orange-soft:#F6E8CF;
+  --green:#3B7A22;--green-soft:#E3EFD6;--red:#B02A22;--red-soft:#F6DDD8;
+  --kid:#FFF6D6;--kid-line:#E3C768;--kid-ink:#3F3306;
+  --shadow:none;
+  --paper:url("");
+  color-scheme:light;
+}
+:root[data-look="paper"] body{background-image:var(--paper)}
+:root[data-look="paper"] h1,:root[data-look="paper"] h2{font-weight:700}
+:root[data-look="paper"] h3{font-weight:600}
+:root[data-look="paper"] .lede{font-size:1.05rem}
+:root[data-look="paper"] .card,:root[data-look="paper"] .demo,:root[data-look="paper"] .panel,:root[data-look="paper"] .chip,
+:root[data-look="paper"] .node,:root[data-look="paper"] details,:root[data-look="paper"] .cta,:root[data-look="paper"] .heroart,
+:root[data-look="paper"] .brow,:root[data-look="paper"] .short{background-image:var(--paper);border-radius:6px;border-color:var(--line)}
+:root[data-look="paper"] .top{background:rgba(255,255,255,.92)}
+:root[data-look="paper"] .stat,:root[data-look="paper"] .xdetail,:root[data-look="paper"] .formula,:root[data-look="paper"] .code{border-radius:6px}
+:root[data-look="paper"] .chip b{font-weight:700}
+
+.evgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.evc,.polc{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:6px;padding:10px 12px;cursor:pointer;background:var(--surface);min-width:0}
+.evc.on,.polc.on{border-color:var(--blue);background:var(--blue-soft)}
+.evc input,.polc input{margin-top:5px;accent-color:var(--blue);flex:none}
+.evc span,.polc span{min-width:0;font-size:.92rem;line-height:1.35}
+.evc small,.polc small{display:block;color:var(--ink2);font-size:.8rem;margin-top:2px}
+.polgrid{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}
+table.trace{font-size:.82rem}
+table.trace tr.vi td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+.diag{min-width:760px}
+.flowline{animation:dash 1.4s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-22}}
+#dmBody tr{cursor:pointer}#dmBody tr:hover{background:var(--surface2)}#dmBody tr.sel{background:var(--blue-soft)}
+#dmBody tr.vi td:first-child{box-shadow:inset 3px 0 0 var(--red)}
+#dmTable td,#dmTable th{padding:8px 10px;font-size:.88rem}
+</style>
+
+<script>
+(function(){var l='paper';try{var v=localStorage.getItem('kairosLook');if(v==='classic'||v==='paper')l=v}catch(e){}document.documentElement.setAttribute('data-look',l)})();
+</script>
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="#top" aria-label="Back to top">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 19h4v-4h4v-4h4V7h4V3"/></svg>
+      Kairos
+    </a>
+    <nav class="tabs" role="tablist" aria-label="Page sections">
+      <button role="tab" data-tab="walk" aria-selected="true">Walkthrough</button>
+      <button role="tab" data-tab="demo" aria-selected="false">Live demo</button>
+      <button role="tab" data-tab="tech" aria-selected="false">Technical reference</button>
+    </nav>
+    <button class="btn" id="lookBtn" title="Switch between the white paper look and the original look">Original look</button>
+    <div class="seg" id="modeSeg" role="group" aria-label="Reading mode">
+      <button id="mSimple" aria-pressed="false">Plain English</button>
+      <button id="mFull" aria-pressed="true">Full detail</button>
+    </div>
+  </div>
+  <div class="prog" id="prog"></div>
+</header>
+
+<div class="shell" id="top">
+<nav class="toc" aria-label="Chapters"><small>Contents</small><ol id="tocList"></ol></nav>
+
+<main id="tabWalk">
+<!-- HERO -->
+<div class="hero">
+  <div class="eyebrow">Paper walkthrough</div>
+  <h1>Earning autonomy: letting an AI agent do more only when the evidence says it is safe</h1>
+  <p class="lede">Companies now let AI agents issue refunds, change records and send email. Kairos is a safety layer that gives an agent more freedom step by step, but only when the numbers support it, and takes the freedom back if conditions change. This page walks through the paper and our results.</p>
+  <div class="chips">
+    <div class="chip"><b data-count="82" data-suffix="%">82%</b><span>of the safely achievable autonomy reached</span></div>
+    <div class="chip"><b data-count="0" data-suffix=" / 20">0 / 20</b><span>simulation runs that broke the safety limit</span></div>
+    <div class="chip"><b data-count="9" data-suffix="×">9×</b><span>less excess risk than a simple rollout after conditions shift</span></div>
+  </div>
+  <div class="short"><h3>If you only have two minutes</h3><ol>
+    <li><b>The problem.</b> Companies either check every AI action by hand, or approve the AI once and never look again. The first does not scale. The second does not notice when things change.</li>
+    <li><b>The idea.</b> Give the AI one "freedom level". Every period, look at the evidence. If it shows the next level is safe, raise it. If not, keep it. If the environment changes, go back to a safe starting level.</li>
+    <li><b>The catch.</b> To judge a level you have not used yet, you need data from it. So a small share of blocked actions are tried in a harmless sandbox.</li>
+    <li><b>The result.</b> In simulation it reached 82% of the safest possible freedom and never broke the safety limit in 20 runs. Simpler designs either broke it, or kept taking risks after conditions changed.</li>
+    <li><b>The limit.</b> Everything here is simulated. A pilot with a real organization is the next step.</li>
+  </ol></div>
+  <div class="cta"><p><strong>Want to see it work?</strong> The Live demo tab lets you pick agent events and a policy and shows what Kairos does and why. The Technical reference tab has the exact policy, estimator and bounds.</p><span style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" data-gotab="demo">Try the live demo</button><button class="btn" data-gotab="tech">Technical reference</button></span></div>
+  <figure class="heroart" style="margin:0">
+    <svg viewBox="0 0 600 230" role="img" aria-label="Autonomy level climbs in steps, drops back to the floor when conditions shift, then climbs again">
+      <g stroke="var(--line)" stroke-width="1"><line x1="30" y1="200" x2="580" y2="200"/><line x1="30" y1="20" x2="30" y2="200"/></g>
+      <line x1="30" y1="86" x2="580" y2="86" stroke="var(--red)" stroke-dasharray="5 5" stroke-width="1.3"/>
+      <text x="584" y="90" font-size="10" text-anchor="end" dy="-8">safety limit</text>
+      <line x1="338" y1="20" x2="338" y2="200" stroke="var(--orange)" stroke-dasharray="3 4"/>
+      <text x="344" y="34" font-size="10" fill="var(--orange)" style="fill:var(--orange)">conditions shift</text>
+      <path class="climb" pathLength="100" d="M30,190 H82 V162 H134 V136 H186 V112 H238 V96 H290 V96 H338 V190 H390 V166 H442 V142 H494 V120 H546 V104" fill="none" stroke="var(--blue)" stroke-width="3.2" stroke-linejoin="round"/>
+      <circle r="6" fill="var(--blue)"><animateMotion id="heroDot" dur="9s" repeatCount="indefinite" keyPoints="0;1;1" keyTimes="0;.75;1" calcMode="linear" path="M30,190 H82 V162 H134 V136 H186 V112 H238 V96 H290 V96 H338 V190 H390 V166 H442 V142 H494 V120 H546 V104"/></circle>
+      <text x="36" y="216" font-size="10">time (each step is one review period)</text>
+      <text x="36" y="14" font-size="10">autonomy level</text>
+    </svg>
+    <figcaption>The idea in one picture. Autonomy climbs one proven step at a time, and drops to a safe floor when the world changes.</figcaption>
+  </figure>
+</div>
+
+<!-- 1 STORY -->
+<section class="ch reveal" id="story" data-toc="The story">
+  <span class="tag">Chapter 1</span>
+  <h2>Start with a story about a bike</h2>
+  <div class="kid"><p>Imagine you get a new bike. Your parents do not say "ride anywhere you like" on day one, and they do not walk next to you forever. They say: "Ride to the end of the street. If that goes well all week, you can go to the corner." If you move to a new town, you start at the driveway again, because you do not know these roads yet. That is the whole paper. The AI agent is the kid on the bike.</p></div>
+  <div class="story" id="storyCards">
+    <div class="panel"><h4>Check every ride</h4><p>A grown-up watches every single ride. Very safe, but you never get to go anywhere on your own.</p><div class="meter"><i class="m-fixed"></i></div><div class="mini"><span>freedom</span><span class="pill r">never grows</span></div></div>
+    <div class="panel"><h4>Say yes once, forget it</h4><p>One test ride, then "go anywhere". Fast, but nobody looks again, even when the roads change.</p><div class="meter"><i class="o" style="width:92%"></i></div><div class="mini"><span>freedom</span><span class="pill o">never re-checked</span></div></div>
+    <div class="panel"><h4>Earn it, step by step</h4><p>Each week of safe riding earns a little more distance. This is what Kairos does.</p><div class="meter"><i class="m-stair"></i></div><div class="mini"><span>freedom</span><span class="pill g">grows with proof</span></div></div>
+    <div class="panel"><h4>New town? Start small</h4><p>When the roads change, distance goes back to the driveway and is earned again.</p><div class="meter"><i class="g m-pulse"></i></div><div class="mini"><span>freedom</span><span class="pill b">resets on change</span></div></div>
+  </div>
+  <div class="tech">
+    <p>The paper's full title is <em>Earning Autonomy: A Statistically Certified Framework for Governing AI Agent Delegation in Organizations</em>. It describes <strong>Kairos</strong>, a layer that sits between an AI agent and the tools it can use. It keeps one number, the <strong>autonomy level</strong>. Once per period it either raises the number (when the evidence supports it), keeps it, or sets it back to a safe starting value (when it detects that conditions changed). The code repository still uses the earlier name, Homeostat.</p>
+  </div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="ch reveal" id="problem" data-toc="The problem">
+  <span class="tag">Chapter 2</span>
+  <h2>Why current practice falls short</h2>
+  <p>AI agents no longer only write text. They call tools that move money, change records and contact customers. Two habits dominate how organizations govern them, and both are governance by decision, not by evidence.</p>
+  <div class="grid g2">
+    <div class="card"><h3>Blanket human review</h3><p>Every action needs a person to approve it. Defensible, but it throws away the reason for having an agent. It also wastes information: each approval is evidence that the agent could be trusted on that kind of action, and the evidence is discarded.</p></div>
+    <div class="card"><h3>One-time autonomy grant</h3><p>A pilot or a red-team exercise, then trust. It scales, but it is rarely a real statistical guarantee, and it is rarely revisited. If customers, rules or request types change, the grant does not notice.</p></div>
+  </div>
+  <div class="kid"><p>If a grown-up checks every single thing you do, you never get any freedom. If they say "okay, you pass" once and never look again, nobody notices when you start doing something risky. Both are bad. We want a way in the middle that uses real evidence.</p></div>
+  <div class="demo tech">
+    <h4>Table 1: Three designs compared</h4>
+    <div class="scroll"><table>
+      <thead><tr><th>Design</th><th>Evidence</th><th>Adapts to drift?</th><th>Statistical guarantee?</th><th>Scales?</th></tr></thead>
+      <tbody>
+        <tr><td>Blanket human review</td><td>Every decision reviewed by a person</td><td>Not applicable</td><td>Not applicable</td><td><span class="pill r">No</span></td></tr>
+        <tr><td>Static grant after vetting</td><td>One pilot or audit, not revisited</td><td><span class="pill r">No</span></td><td><span class="pill r">No</span></td><td><span class="pill g">Yes</span></td></tr>
+        <tr><td><strong>Certified mechanism (this paper)</strong></td><td>Real and sandboxed evidence, every period</td><td><span class="pill g">Yes, automatic reset</span></td><td><span class="pill g">Yes, a live certificate</span></td><td><span class="pill g">Yes</span></td></tr>
+      </tbody></table></div>
+  </div>
+  <div class="tech">
+    <h3>What the paper contributes</h3>
+    <p><strong>1.</strong> A concrete way to say "trust is earned": a check that is repeated every period and tied to limits the organization declares. <strong>2.</strong> A close look at how simpler designs fail, which only shows up in realistic settings such as a small trial group or a change in the environment. <strong>3.</strong> Two practical add-ons: handling outcomes that arrive late, and not needing to know in advance how long the system will run.</p>
+  </div>
+</section>
+
+<!-- 3 THEORY -->
+<section class="ch reveal" id="theory" data-toc="Ideas behind it">
+  <span class="tag">Chapter 3</span>
+  <h2>The management ideas this builds on</h2>
+  <p>The paper is written for management researchers, so each part of the mechanism is tied to a classic idea about how organizations hand authority to someone else. Tap a card to see the link.</p>
+  <div class="grid g2" id="lenses"></div>
+  <div class="kid"><p>Grown-ups have been asking "how much should I trust someone I cannot watch all the time?" for a very long time. The paper just says: an AI is another helper, so use the same wisdom, and back it with numbers.</p></div>
+</section>
+
+<!-- 4 PARTS -->
+<section class="ch reveal" id="parts" data-toc="The moving parts">
+  <span class="tag">Chapter 4</span>
+  <h2>What the system is made of</h2>
+  <p>Kairos is a small piece of middleware. The agent never talks to the tools directly. Every proposed action passes through it first.</p>
+  <div class="arch">
+    <div class="node"><b>1 · AI agent</b>Proposes an action: a refund, a query, an email.</div>
+    <div class="node hot"><b>2 · Policy enforcement point</b>Applies the current autonomy level λ and decides: allow, block, or sandbox.</div>
+    <div class="node"><b>3 · Production</b>Allowed actions really happen.</div>
+    <div class="node sand"><b>4 · Sandbox</b>A small share ε of blocked actions run here. No real effect, outcome recorded.</div>
+    <div class="node"><b>5 · Evidence log</b>Every outcome, real or sandboxed, saved in an append-only ledger.</div>
+    <div class="node hot"><b>6 · Certification engine</b>Computes a confidence bound on the risk of each higher level.</div>
+    <div class="node hot"><b>7 · Drift monitor</b>Compares this period's logs to the last period's.</div>
+    <div class="node hot"><b>8 · Governance controller</b>Combines 6 and 7 into ratchet, hold or reset.</div>
+  </div>
+  <div class="kid"><p>Think of a school hallway monitor. The kid asks "can I go?", the monitor checks the pass level, the school keeps a notebook of everything, and once a week the principal reads the notebook and decides whether to give a bigger pass.</p></div>
+  <div class="tech">
+    <p>In the code, each box maps to a folder: the policy rules in <code>homeostat/policy</code>, the statistics in <code>calibration</code>, the period loop and drift test in <code>loop</code>, the log in <code>ledger</code>, and a small web service in <code>proxy</code>. The project had 110 automated tests at its last commit.</p>
+  </div>
+</section>
+
+<!-- 3D VIEW -->
+<section class="ch reveal" id="see3d" data-toc="Pipeline in 3D">
+  <span class="tag"></span>
+  <h2>The decision pipeline in 3D</h2>
+  <p>A schematic of one control period. Each packet is one agent request. Its height is a risk rank r between 0 and 1, and the opening in the gate is the autonomy level λ. The gate cannot see whether a packet is truly safe or unsafe. Cubes are safe requests and octahedra are unsafe ones.</p>
+  <div class="kid"><p>Requests fly toward a gate. Low-risk ones fit through the opening and run for real. High-risk ones are stopped, and a small random share of the stopped ones go to a practice area so the system can learn from them. A log records every outcome, and once per period the opening is raised, kept, or lowered.</p></div>
+  <div class="demo">
+    <h4>Live pipeline (simplified model)</h4>
+    <p class="sub">Drag sideways to rotate. The trace table below lists each request as it is routed.</p>
+    <div class="t3wrap" id="t3Wrap"><canvas id="t3" aria-label="3D schematic of requests routed through a policy gate to production, sandbox or block"></canvas><div id="t3Labels"></div></div>
+    <div class="row" style="margin-top:14px">
+      <button class="btn pri" id="t3Auto">Pause</button>
+      <button class="btn" id="t3Burst">Send 20 requests</button>
+      <button class="btn" id="t3Drift">Inject drift</button>
+      <button class="btn" id="t3Reset">Restart</button>
+      <div class="seg" role="group" aria-label="Agent risk profile"><button id="t3Calm" aria-pressed="true">Baseline agent</button><button id="t3Risky" aria-pressed="false">Elevated-risk agent</button></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <label class="ctl"><span>Gate opening, autonomy λ <output id="t3LamO">0.10</output></span><input id="t3Lam" type="range" min="0.05" max="0.95" step="0.05" value="0.1"></label>
+      <label class="ctl"><span>Sandbox share ε <output id="t3EpsO">0.15</output></span><input id="t3Eps" type="range" min="0" max="0.5" step="0.01" value="0.15"></label>
+      <label class="ctl" style="flex:0 1 230px;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="t3Gov" checked style="width:auto"> <span style="display:inline">Closed-loop control</span></label>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="t3Period">0</b><span>periods completed</span></div>
+      <div class="stat"><b id="t3Ok">0</b><span>safe requests allowed</span></div>
+      <div class="stat"><b id="t3Harm" style="color:var(--red)">0</b><span>unsafe requests allowed (violations)</span></div>
+      <div class="stat"><b id="t3Stop">0</b><span>unsafe requests blocked</span></div>
+      <div class="stat"><b id="t3Blk">0</b><span>safe requests blocked</span></div>
+      <div class="stat"><b id="t3Sand">0</b><span>sandboxed (weight <span id="t3W">6.7</span>× each)</span></div>
+    </div>
+    <div class="verdict mid" id="t3Status"></div>
+    <div class="scroll" style="margin-top:12px"><table class="trace"><thead><tr><th>Packet</th><th>Rank r</th><th>Truth</th><th>Gate</th><th>Route</th><th>π<sub>safe</sub></th></tr></thead><tbody id="t3Trace"></tbody></table></div>
+    <p class="note" style="margin-top:12px">System events</p>
+    <ul class="feed" id="t3Feed" aria-live="polite"></ul>
+  </div>
+  <h3>Reading the scene</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Element</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td>Vertical axis</td><td>Risk rank r of a request. In the real system this role is played by the rule table in the technical reference, which reads the observed flags, cost and amount. A single rank stands in for it here so the scene stays readable.</td></tr>
+      <tr><td>Gate opening (green outline)</td><td>Autonomy level λ. Packets below the top of the opening are allowed by the rule. The hatched region is where the rule denies.</td></tr>
+      <tr><td>Production slab</td><td>Allowed requests execute here with a real effect. A red ring on landing marks an unsafe request that got through, which the certificate must keep under 5% of traffic.</td></tr>
+      <tr><td>Sandbox box</td><td>With probability ε, a request the rule denied is executed here instead, with no real effect. Its outcome is observed and counts 1/ε times in the risk estimate.</td></tr>
+      <tr><td>Blocked</td><td>The packet stops at the gate. Nothing is executed and the recorded loss is 0. An unsafe packet stopped here is the gate working. A safe packet stopped here is the cost of caution.</td></tr>
+      <tr><td>Evidence ledger (floor tiles)</td><td>One tile per decision: blue allowed and safe, red allowed and unsafe, orange sandboxed, grey blocked.</td></tr>
+      <tr><td>Ring above the gate</td><td>Drift monitor. It turns amber when the environment has changed and is cleared once the level has been reset.</td></tr>
+      <tr><td>Pulse at period end</td><td>The certificate check. The opening rises one step if the evidence clears the limit with margin, otherwise it holds. After a drift alarm it drops to the starting level.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="cta"><p>The exact rule, probabilities and importance weights behind each outcome are in the decision ledger in the technical reference tab. To pick events and a policy yourself, use the live demo tab.</p><button class="btn" data-gotab="tech">Open the decision ledger</button> <button class="btn pri" data-gotab="demo">Open the live demo</button></div>
+</section>
+
+<!-- 5 LOOP -->
+<section class="ch reveal" id="loop" data-toc="The loop">
+  <span class="tag">Chapter 5</span>
+  <h2>One period, step by step</h2>
+  <p>Everything repeats once per period. Press play, or pick a step.</p>
+  <div class="demo">
+    <h4>The governance loop (Figure 1)</h4>
+    <div class="pipe" id="pipe" role="tablist"></div>
+    <div class="token"><i id="tokenBar"></i></div>
+    <div class="stepbody" id="stepBody" aria-live="polite"></div>
+    <div class="row" style="margin-top:6px">
+      <button class="btn" id="stPrev">Previous</button>
+      <button class="btn pri" id="stPlay">Pause</button>
+      <button class="btn" id="stNext">Next</button>
+    </div>
+  </div>
+</section>
+
+<!-- 6 SANDBOX -->
+<section class="ch reveal" id="sandbox" data-toc="The sandbox trick">
+  <span class="tag">Chapter 6</span>
+  <h2>The key trick: a little practice playground</h2>
+  <div class="kid"><p>If the pass says "no", the kid stays home, and you learn nothing about what would have happened if they went. So once in a while, instead of saying "no", you let them try it on a playground with soft mats. Nothing real can break, but you get to see how it goes. That tiny bit of practice is how you find out if a bigger pass is safe.</p></div>
+  <div class="tech">
+    <p>When the system blocks an action, it learns nothing about what would have happened. So to judge a more permissive setting, it needs some evidence from the blocked region. The fix is to send a small random share, ε, of blocked actions to the sandbox instead. Every action then has at least an ε chance of being tried, which keeps the correction weights bounded by 1/ε and makes the risk estimate meaningful. (The technical name for this is restoring "support overlap".)</p>
+  </div>
+  <div class="demo">
+    <h4>Try it: the sandbox</h4>
+    <p class="sub">Each dot is a proposed action. Red dots would cause harm, blue dots are fine. The system cannot see the color. Move the sliders and watch where dots go.</p>
+    <canvas id="sbCanvas" class="cv" aria-label="Animation of actions flowing to production, sandbox or blocked"></canvas>
+    <div class="legend"><span><i style="background:var(--blue)"></i>safe action</span><span><i style="background:var(--red)"></i>harmful action</span><span>Left bin: allowed (real). Middle: sandbox (fake, observed). Right: blocked.</span></div>
+    <div class="row" style="margin-top:14px">
+      <label class="ctl"><span>Autonomy level λ <output id="oLam">0.40</output></span><input id="sLam" type="range" min="0.05" max="0.95" step="0.05" value="0.4"></label>
+      <label class="ctl"><span>Sandbox share ε <output id="oEps">0.15</output></span><input id="sEps" type="range" min="0" max="0.5" step="0.01" value="0.15"></label>
+      <button class="btn" id="sbBurst">Send 25 actions</button>
+      <button class="btn" id="sbClear">Clear counts</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><b id="cProd">0</b><span>allowed in production</span></div>
+      <div class="stat"><b id="cBad">0</b><span>of those were harmful</span></div>
+      <div class="stat"><b id="cBlock">0</b><span>blocked</span></div>
+      <div class="stat"><b id="cSand">0</b><span>sandboxed (evidence)</span></div>
+      <div class="stat"><b id="cW">6.7×</b><span>weight of each sandbox observation (1/ε)</span></div>
+    </div>
+    <div class="verdict mid" id="sbMsg"></div>
+  </div>
+</section>
+
+<!-- 7 CERTIFICATE -->
+<section class="ch reveal" id="certificate" data-toc="The certificate">
+  <span class="tag">Chapter 7</span>
+  <h2>How the system decides to go up</h2>
+  <div class="kid"><p>Say you flip a coin 10 times and get 6 heads. Is it a fair coin? You cannot be sure. After 10,000 flips you can be much surer. The system does the same with risk. It measures how risky a bigger pass seems, then adds a "maybe I'm wrong" cushion that shrinks as it sees more examples. It only says yes if risk <em>plus</em> cushion is still under the safety limit.</p></div>
+  <div class="tech">
+    <p>For each higher level, the system estimates the risk from the logged outcomes, reweighting them so they speak for that level. It then adds a cushion that shrinks as more data arrives (an upper confidence bound). Two rules are checked, a safety rate and a cost rate. The level moves up to the highest step where both stay under their limits, and holds if even the first step fails. The paper compares three ways of computing the cushion: Hoeffding, empirical Bernstein, and a betting-based method, which is the default.</p>
+  </div>
+  <div class="demo">
+    <h4>Try it: the certificate (toy numbers)</h4>
+    <p class="sub">Current level is 0.20. Each bar is the estimated risk of a higher level, the whisker is the upper bound, the dashed line is the safety limit α = 0.05. Fewer samples means longer whiskers.</p>
+    <svg class="chart" id="certSvg" viewBox="0 0 640 280" role="img" aria-label="Estimated risk and upper confidence bound per candidate autonomy level"></svg>
+    <div class="row" style="margin-top:8px">
+      <label class="ctl"><span>Actions per period n <output id="oN">5000</output></span><input id="sN" type="range" min="200" max="20000" step="100" value="5000"></label>
+      <label class="ctl"><span>Sandbox share ε <output id="oE2">0.15</output></span><input id="sE2" type="range" min="0.02" max="0.5" step="0.01" value="0.15"></label>
+    </div>
+    <div class="verdict mid" id="certMsg"></div>
+    <p class="note">Illustration only. The risk curve and the width formula are simple stand-ins that show the shape of the idea. They are not the paper's data.</p>
+  </div>
+</section>
+
+<!-- 8 FLOOR -->
+<section class="ch reveal" id="floor" data-toc="The exploration floor">
+  <span class="tag">Chapter 8</span>
+  <h2>Why some settings can never say yes</h2>
+  <div class="kid"><p>Imagine you only get to watch 80 kids cross the road and every one of them is perfectly safe. You still cannot promise that the road is safe, because 80 is just too few to be sure. There is a smallest "maybe I'm wrong" cushion you can never get under, however good the results look. If that smallest cushion is already bigger than the safety limit, the answer is "no" forever.</p></div>
+  <div class="tech">
+    <p>Even if every observed outcome is safe, the cushion cannot shrink below a minimum that depends on ε and on the number of actions n. This minimum is the <strong>floor</strong>. If the floor is above the safety limit, the system can never raise the level, however safe the agent really is. For two of the three methods the paper proves the floor exactly. For the default method it is checked numerically, which is weaker evidence. The practical lesson is to check ε and n against the safety limit before collecting any data.</p>
+    <div class="formula">floor ≈ (1/ε) · ln(1/δ_test) / (0.9 · n)      (default method, approximate; δ_test is the small error budget given to each single test)</div>
+  </div>
+  </div>
+  <div class="demo">
+    <h4>Try it: floor calculator</h4>
+    <p class="sub">Uses the paper's defaults: δ = 0.05, K = 2 constraints, 11 candidate levels, T = 15 periods, safety limit α = 0.05. This is the betting-bound approximation.</p>
+    <div class="row">
+      <label class="ctl"><span>Sandbox share ε <output id="oFe">0.15</output></span><input id="fE" type="range" min="0.02" max="0.5" step="0.01" value="0.15"></label>
+      <label class="ctl"><span>Actions per period n <output id="oFn">5000</output></span><input id="fN" type="range" min="50" max="20000" step="50" value="5000"></label>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn" data-pre="0.15,5000">Paper defaults</button>
+      <button class="btn" data-pre="0.15,80">Small demo (n = 80)</button>
+      <button class="btn" data-pre="0.03,2000">ε = 0.03, n = 2000</button>
+    </div>
+    <svg class="chart" id="floorSvg" viewBox="0 0 640 110" role="img" aria-label="Exploration floor compared with the safety limit" style="margin-top:12px"></svg>
+    <div class="verdict mid" id="floorMsg"></div>
+    <h3 style="margin-top:22px">The three bounds at the paper's defaults</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Bound</th><th>Floor</th><th>vs. limit 0.05</th><th>What happened in the 20-run sweep</th></tr></thead>
+      <tbody>
+        <tr><td>Hoeffding</td><td class="num">0.198</td><td><span class="pill r">~4× above</span></td><td>Never moved, in any run, at any period</td></tr>
+        <tr><td>Bernstein</td><td class="num">0.0295</td><td><span class="pill g">below</span></td><td>Can ratchet</td></tr>
+        <tr><td>Betting (default)</td><td class="num">0.0131</td><td><span class="pill g">below</span></td><td>Reached final λ = 0.471</td></tr>
+      </tbody></table></div>
+  </div>
+</section>
+
+<!-- 9 SIMULATE -->
+<section class="ch reveal" id="simulate" data-toc="Run the loop">
+  <span class="tag">Chapter 9</span>
+  <h2>Watch it run, and break it</h2>
+  <p>This is a small, toy version of the loop. Press <strong>Next period</strong> a few times and watch the blue line climb. Then press <strong>Inject drift</strong> and keep going. The orange line is a simple "canary" rollout with no drift monitor, the kind many teams would build first.</p>
+  <div class="demo">
+    <h4>Try it: ratchet, hold, reset</h4>
+    <svg class="chart" id="simSvg" viewBox="0 0 640 400" role="img" aria-label="Autonomy level and true safety risk per period for certified mechanism and canary rollout"></svg>
+    <div class="row" style="margin-top:8px">
+      <button class="btn pri" id="simNext">Next period</button>
+      <button class="btn" id="simPlay">Auto-play</button>
+      <button class="btn" id="simDrift">Inject drift</button>
+      <button class="btn" id="simReset">Restart</button>
+    </div>
+    <div class="verdict mid" id="simMsg">Period 0 of 15. Both designs start at the conservative floor, λ = 0.05.</div>
+    <div class="legend"><span><i style="background:var(--blue)"></i>Certified mechanism</span><span><i style="background:var(--orange)"></i>Canary rollout (no drift monitor)</span></div>
+    <p class="note">Toy dynamics with made-up risk curves, chosen so the shapes match the paper's findings. The paper's real numbers come in sections 12 and 13.</p>
+  </div>
+  <div class="kid"><p>The blue helper climbs only when the numbers say "safe". When the town changes, it notices a bit late (one week), then drops to the driveway and starts earning again. The orange helper never checks if the town changed, so it keeps riding as far as before, in a place where that is now dangerous.</p></div>
+</section>
+
+<!-- 10 SETUP -->
+<section class="ch reveal" id="setup" data-toc="The experiment">
+  <span class="tag">Chapter 10</span>
+  <h2>How the paper tests it</h2>
+  <p>Letting an untested governance layer loose on real money and real customers would be unsafe, so the paper uses a controlled simulation. A simulation also lets the authors compare against the truth, which a real company never fully has.</p>
+  <div class="grid g3">
+    <div class="card"><h4>Five tools</h4><p>Database query, refund, external email, record deletion, and escalate to a human. Each has a cost model and a hidden ground-truth label: did this action actually break policy?</p></div>
+    <div class="card"><h4>Noisy eyes</h4><p>The governance layer never sees the truth. It sees a heuristic detector that is wrong about 12% of the time, like guessing whether a text holds personal data.</p></div>
+    <div class="card"><h4>An "oracle"</h4><p>For comparison only, the simulator computes the highest level that would be safe if the truth were fully known. It is the ceiling nobody can reach in practice.</p></div>
+    <div class="card"><h4>Drift on demand</h4><p>A scheduled shift in the mix of tasks and in the detector's error rate, to see how each design copes with a changed world.</p></div>
+    <div class="card"><h4>Real scale</h4><p>20 independent runs, 15 periods each, 5,000 interactions per period, across 10 designs and ablations. A period needs thousands of observations before any bound can move at all.</p></div>
+    <div class="card"><h4>A real LLM, too</h4><p>The repo also drives the loop with a local model (llama3.2:3b via Ollama), and a boundary-probing persona that made it escalate 6 of 6 ambiguous cases. These runs prove the wiring, not the certificate.</p></div>
+  </div>
+  <div class="kid"><p>It is like testing a new seat belt with a crash-test dummy first. Nobody gets hurt, and you still learn a lot. The "oracle" is like a teacher with the answer key, used only to grade.</p></div>
+</section>
+
+<!-- 11 RESULTS -->
+<section class="ch reveal" id="results" data-toc="Main results">
+  <span class="tag">Chapter 11</span>
+  <h2>What happened: six designs, 20 runs each</h2>
+  <p>Tap a row for the plain explanation. Blue bars are the certified mechanism. The dashed line on the risk bars is the declared limit, α = 0.05.</p>
+  <div class="demo">
+    <h4>Table 3 and Figure 2: no drift</h4>
+    <div class="bhead"><span>Design</span><span>Final autonomy level λ (higher = more freedom)</span><span>Realized safety risk (must stay under dashed line)</span></div>
+    <div class="bars" id="resBars" style="margin-top:8px"></div>
+    <div class="verdict mid" id="resMsg" aria-live="polite"></div>
+  </div>
+  <div class="grid g2">
+    <div class="card"><h4>82% of the ceiling</h4><p>0.471 divided by the oracle's 0.575. The certified mechanism gets most of what is safely possible, and never exceeds its safety limit in any of 20 runs.</p></div>
+    <div class="card"><h4>The ablations are necessary</h4><p>Removing the sandbox, or checking only one of the two constraints, roughly doubles the real risk (0.100 and 0.107, versus 0.036). They are required parts, not extras.</p></div>
+  </div>
+  <div class="kid"><p>The blue designs earn nearly as much freedom as is truly safe and stay under the safety line. The designs that skip the practice playground, or only look at one rule, get more freedom but twice as many accidents.</p></div>
+</section>
+
+<!-- 12 FAILURES -->
+<section class="ch reveal" id="failures" data-toc="Where simple designs fail">
+  <span class="tag">Chapter 12</span>
+  <h2>Where simpler designs break</h2>
+  <p>The canary rollout, which tries a higher level on a small slice of real traffic and promotes it if the raw numbers look fine, did <strong>not</strong> break the limit in the default test (risk 0.038). That could look like a win. The paper says "did not fail once" is not "cannot fail", and tests two realistic stresses.</p>
+  <div class="demo">
+    <h4>Stress test 1: a smaller trial slice</h4>
+    <p class="sub">Each square is one of the 20 runs. Red means that run went over the safety limit at some point.</p>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn" id="sl5" aria-pressed="false">5% trial slice (default)</button>
+      <button class="btn pri" id="sl1" aria-pressed="true">1% trial slice (realistic)</button>
+    </div>
+    <div class="row" style="align-items:flex-start;gap:28px">
+      <div class="seeds" id="seeds" aria-label="20 simulation runs"></div>
+      <div style="min-width:0;flex:1 1 220px"><div class="big" id="slBig">65%</div><p id="slTxt" style="margin-top:6px">13 of 20 runs breached the limit. The worst run reached 0.118, more than twice the tolerance.</p></div>
+    </div>
+    <p class="note">Why: the canary compares a raw average on a tiny slice to the limit, with no safety margin. A small slice is noisy, so it will sometimes look safe when it is not.</p>
+  </div>
+  <div class="demo">
+    <h4>Stress test 2: the world changes mid-run (Figure 3)</h4>
+    <p class="sub">Safety risk in each period after drift hits at period 9. Red means over the limit.</p>
+    <div class="tl" id="tl"></div>
+    <div class="row" style="margin-top:18px;align-items:flex-end;gap:28px">
+      <div style="flex:1 1 260px;min-width:0">
+        <div class="mini" style="margin-bottom:4px"><span>Certified mechanism: total excess over limit</span><span>0.0163</span></div>
+        <div class="bar in" style="height:18px"><i style="width:11.3%"></i></div>
+        <div class="mini" style="margin:12px 0 4px"><span>Canary rollout: total excess over limit</span><span>≈ 0.144</span></div>
+        <div class="bar in" style="height:18px"><i class="o" style="width:100%"></i></div>
+      </div>
+      <div style="flex:0 1 160px"><div class="big" style="color:var(--orange)">8.8×</div><span style="font-size:.84rem;color:var(--ink2)">more total excess for the canary</span></div>
+    </div>
+    <div class="tech"><p style="margin-top:14px;font-size:.92rem;color:var(--ink2)">The certified mechanism goes over the limit in exactly one period (0.0663 against 0.05), because the old level keeps running until the drift test fires. It then resets and is back under the limit. The canary has no drift check, so it stays at its old level and its risk stays at 0.072 to 0.075 in every period from 9 to 14. Some exposure while a change is being detected cannot be avoided. The difference is a short lapse versus one that never ends.</p></div>
+  </div>
+  <div class="kid"><p>When the town changes, the careful helper trips once, notices, and goes back to the driveway. The helper who never checks keeps riding too far on dangerous roads, week after week.</p></div>
+</section>
+
+<!-- 13 EXTENSIONS -->
+<section class="ch reveal" id="extensions" data-toc="Two real-world twists">
+  <span class="tag">Chapter 13</span>
+  <h2>Two real-world twists</h2>
+  <h3>Twist 1 · Some answers arrive late</h3>
+  <div class="kid"><p>A teacher cannot grade homework that has not been handed in yet. So she writes a zero in pencil for each missing paper, the worst possible score. If the class still looks good with those zeros, it really is good, and when homework arrives she fixes the numbers.</p></div>
+  <div class="tech">
+    <p>Often the true outcome of an action, such as whether a refund was fraud, is only known later. Until it is known, the system treats the action as if it had the worst possible outcome. That can only make the estimate more cautious, never less, so the guarantee still holds. The cost is that autonomy is earned more slowly when many outcomes are still pending.</p>
+  </div>
+  <div class="demo">
+    <h4>Try it: how much lag hurts (20-run sweep)</h4>
+    <p class="sub">Maximum resolution lag, measured in decisions (a period is 5,000).</p>
+    <div class="row"><label class="ctl"><span>Maximum lag <output id="oLag">0</output></span><input id="sLag" type="range" min="0" max="4" step="1" value="0" aria-label="Lag setting"></label></div>
+    <div class="bars" style="margin-top:12px">
+      <div><div class="mini"><span>Final autonomy level</span><span id="lagV">0.471</span></div><div class="bar"><i id="lagBar" style="width:47.1%"></i></div></div>
+      <p class="note" style="margin:0">Safety stayed fine at every lag. The worst observed true risk fell from 0.042 (no lag) to 0.029 (largest lag), never near the 0.05 limit. The price is slower earning.</p>
+    </div>
+    <div class="verdict mid" id="lagMsg"></div>
+  </div>
+  <h3>Twist 2 · Nobody knows how long the system will run</h3>
+  <div class="kid"><p>You have a small jar of "chances to be wrong" and you promised to spend it over 15 weeks. If the game goes on for 40 weeks, you have spent far more than the jar holds. A smarter plan is to spend a lot in the early weeks and a little less each week after, so the total never goes over the jar, however long it runs.</p></div>
+  <div class="tech">
+    <p>The basic version splits the total error budget evenly over a planned number of periods. If the system runs longer than planned, it quietly spends more error than it is allowed. The fix is a schedule that gives a large share of the budget to early periods and smaller shares later, so the total never goes over however long the system runs: budget in period t = total × (1 − ρ) × ρ<sup>t−1</sup>, with ρ = 0.90.</p>
+  </div>
+  <div class="demo">
+    <h4>Try it: the error budget</h4>
+    <p class="sub">Total allowed error is δ = 0.05. How much is spent if the system runs T periods?</p>
+    <div class="row"><label class="ctl"><span>Actual run length T <output id="oT">15</output> (plan was 15)</span><input id="sT" type="range" min="1" max="60" step="1" value="15"></label></div>
+    <div style="margin-top:12px;display:grid;gap:10px">
+      <div><div class="mini"><span>Fixed split (planned for 15 periods)</span><span id="spFlat">0.050</span></div><div class="bar"><i class="o" id="bFlat" style="width:50%"></i><span class="al" id="alBudget"></span></div></div>
+      <div><div class="mini"><span>Geometric schedule (ρ = 0.90)</span><span id="spGeo">0.050</span></div><div class="bar"><i id="bGeo" style="width:50%"></i></div></div>
+    </div>
+    <div class="verdict mid" id="spMsg"></div>
+  </div>
+  <div class="tech">
+    <h3>What this schedule gives you</h3>
+    <p>If you guessed the run length correctly, it climbs faster in the first five periods and then falls behind: final level 0.442 versus 0.471 over 20 runs. Its real benefit is safety when a run goes longer than planned. At 40 periods the fixed split has spent about 0.133 of error against a 0.05 budget. One caution: an existing method, Conformal Selective Acting, proves a stronger guarantee. We present ours as the simpler, cheaper option, not as a new result.</p>
+  </div>
+</section>
+
+<!-- 14 MEANING -->
+<section class="ch reveal" id="meaning" data-toc="What it means">
+  <span class="tag">Chapter 14</span>
+  <h2>What this means for managers</h2>
+  <p>The conference theme is sustainability and inclusive growth. The paper turns its results into five findings, each with something a leader can do. Tap one.</p>
+  <div id="impl"></div>
+  <div class="grid g2" style="margin-top:22px">
+    <div class="card"><h4>Delegation and internal control</h4><p>Companies do not give an employee unlimited signing authority after one background check. The certificate plays the role of an audit trail plus an authorization matrix for an AI.</p></div>
+    <div class="card"><h4>Ethical leadership</h4><p>"Trust" stops being a values statement and becomes something a board can point to: autonomy is never granted without a certificate, and is withdrawn automatically when the evidence goes away.</p></div>
+    <div class="card"><h4>Inclusive growth</h4><p>Every failure hits a customer who never chose that risk. A stated, enforced tolerance keeps the benefits of scale from being paid for by the people least able to contest it.</p></div>
+    <div class="card"><h4>Sustainable governance</h4><p>Detection and reset should be budgeted as an ongoing operating cost (the sandbox traffic and the re-certification), not a one-off compliance box.</p></div>
+  </div>
+  <div class="kid"><p>Three things to do: check ahead of time that your "practice playground" is big enough, treat the size of any trial run as a safety decision, and always plan for what happens when things change.</p></div>
+</section>
+
+<!-- 15 LIMITS -->
+<section class="ch reveal" id="limits" data-toc="Limits and related work">
+  <span class="tag">Chapter 15</span>
+  <h2>What the paper does not claim</h2>
+  <div class="grid g2">
+    <div class="card"><h4>Simulation only</h4><p>Every number is about a simulated environment with a known oracle. A field pilot at a cooperating organization is the biggest missing step.</p></div>
+    <div class="card"><h4>One drift scenario</h4><p>One severity at one point in time. A sweep across severity and timing would show how general the result is.</p></div>
+    <div class="card"><h4>Horizon robustness is analytic</h4><p>The sequential schedule's advantage is shown on paper, not yet in a run that truly exceeds its plan.</p></div>
+    <div class="card"><h4>One close paper unread by a human</h4><p>Conformal Policy Control has had a tool-assisted read only, and the wider safe-policy-improvement literature still needs a full pass.</p></div>
+  </div>
+  <h3>Nearby research and how this differs</h3>
+  <div class="grid g2">
+    <div class="card"><h4>Conformal Selective Acting</h4><p>Has a ratchet-like rule and a stronger anytime-valid guarantee. But its thresholds are nested cuts on one score, so no sandbox is needed, and it retires old evidence only at epoch boundaries.</p></div>
+    <div class="card"><h4>Conformal Policy Control</h4><p>Same bounded-importance-weight idea. No randomized sandbox, no ratchet, drift left for future work.</p></div>
+    <div class="card"><h4>ToolChain-CRC</h4><p>One static threshold calibrated once. Drift makes it abstain more instead of resetting and re-earning.</p></div>
+    <div class="card"><h4>Safe policy improvement</h4><p>HCOPI, conservative bandits and SPIBB set the "deploy only if a high-confidence bound clears" pattern long ago, without multi-period drift reset or a sandbox.</p></div>
+  </div>
+  <div class="band" style="font-size:1.1rem"><small>What is new</small>Not any single piece. The combination: a rising certified permission level, an automatic reset on drift, made valid by a randomized sandbox, across several jointly checked constraints.</div>
+</section>
+
+<!-- THE PAPER -->
+<section class="ch reveal" id="paper" data-toc="Read the paper">
+  <span class="tag">The paper</span>
+  <h2>Read the full paper</h2>
+  <div class="card" id="paperCard">
+    <h4 id="paperStatus">Paper coming soon</h4>
+    <p id="paperText">The full research paper will appear here once it is added to the project. Until then, the chapters above cover the whole idea in plain language, and the Technical tab covers the details.</p>
+    <p id="paperActions" hidden><a class="btn pri" id="paperDl" href="paper/kairos.pdf" download style="text-decoration:none;display:inline-block">Download PDF</a> <a class="btn" href="paper/kairos.pdf" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">Open in a new tab</a></p>
+  </div>
+  <iframe id="paperFrame" title="Kairos research paper (PDF)" hidden style="width:100%;height:80vh;margin-top:14px;border:1px solid var(--line);border-radius:12px;background:var(--surface)"></iframe>
+  <script>
+  (function(){
+    var url='paper/kairos.pdf';
+    if(!window.fetch||location.protocol==='file:')return;
+    fetch(url,{method:'HEAD'}).then(function(r){
+      var ct=(r.headers.get('content-type')||'').toLowerCase();
+      if(!r.ok||ct.indexOf('pdf')<0)return;
+      document.getElementById('paperStatus').textContent='The Kairos paper (PDF)';
+      document.getElementById('paperText').textContent='Read it below, or download it to keep.';
+      document.getElementById('paperActions').hidden=false;
+      var f=document.getElementById('paperFrame');f.src=url;f.hidden=false;
+    }).catch(function(){});
+  })();
+  </script>
+</section>
+
+<!-- 16 GLOSSARY -->
+<section class="ch reveal" id="glossary" data-toc="Glossary">
+  <span class="tag">Chapter 16</span>
+  <h2>Every word, in plain language</h2>
+  <div id="gloss"></div>
+  <footer>
+    <p>Everything numerical here comes from the project's own documents: <code>PAPER.md</code>, <code>DESIGN.md</code>, <code>PRIOR_ART.md</code> and <code>PROGRESS.md</code> (20-run sweeps at 15 periods and 5,000 interactions per period). The demos in sections 5, 7, 8 and 10 use simple toy models to show the idea, and say so. The system's code and earlier drafts call it Homeostat, so you will see that name in file paths. Kairos is the name used in the capstone slides and the PDF.</p>
+  </footer>
+</section>
+</main>
+<main id="tabDemo" hidden>
+<div class="hero">
+  <div class="eyebrow">Live demo</div>
+  <h1 style="font-size:clamp(1.9rem,4.4vw,2.9rem)">Pick some agent events, pick a policy, see what Kairos does</h1>
+  <p class="lede">Choose from realistic agent actions, choose how much autonomy the agent has, and the page applies the same rule and probabilities the system uses. Every result comes with a written account of what happened and why.</p>
+</div>
+
+<section class="ch reveal" id="dm-sim" data-toc="Scenario simulator">
+  <span class="tag"></span>
+  <h2>Scenario simulator</h2>
+  <p class="oneline">How it works: each event goes through the rule for the chosen policy. A denied event is blocked, except that a small random share goes to the sandbox. Then the page reveals the ground truth the policy could not see.</p>
+
+  <div class="demo">
+    <h4>Step 1. Choose agent events</h4>
+    <p class="sub">Each event is something an agent might ask to do. Some are safe, some are not, and in some cases the detector the policy relies on gets it wrong.</p>
+    <div class="row" style="margin-bottom:12px">
+      <button class="btn" id="dmTypical">Typical mix</button>
+      <button class="btn" id="dmAll">Select all</button>
+      <button class="btn" id="dmNone">Clear</button>
+      <span class="note" id="dmEvCount" style="margin:0;border:0;padding:0"></span>
+    </div>
+    <div class="evgrid" id="dmEvents"></div>
+  </div>
+
+  <div class="demo">
+    <h4>Step 2. Choose a policy</h4>
+    <p class="sub">A policy is an autonomy level λ. Higher λ unlocks more tools and larger refunds. You can also switch the sandbox (exploration) on or off.</p>
+    <div class="polgrid" id="dmPolicies" role="radiogroup" aria-label="Policy"></div>
+    <div class="row" style="margin-top:14px">
+      <div class="seg" role="group" aria-label="Sandbox" id="dmEps">
+        <button data-e="0.15" aria-pressed="true">Sandbox on (ε = 0.15)</button>
+        <button data-e="0" aria-pressed="false">Sandbox off (ε = 0)</button>
+      </div>
+      <button class="btn pri" id="dmRoll">Roll the dice again</button>
+    </div>
+  </div>
+
+  <div class="demo">
+    <h4>Step 3. What Kairos does</h4>
+    <div class="verdict mid" id="dmSummary"></div>
+    <div class="stats" id="dmStats"></div>
+    <div class="scroll" style="margin-top:12px"><table id="dmTable">
+      <thead><tr><th>Event</th><th>Rule at this λ</th><th>P(allowed)</th><th>P(sandboxed)</th><th>P(blocked)</th><th>This draw</th><th>Ground truth</th><th>Assessment</th></tr></thead>
+      <tbody id="dmBody"></tbody></table></div>
+    <p class="note">Probabilities are exact: they follow from the rule and ε. "This draw" is one random outcome. Click a row for the explanation.</p>
+  </div>
+
+  <div class="demo">
+    <h4>What happened and why</h4>
+    <div class="xgrid">
+      <div class="xdetail" id="dmExplain" aria-live="polite"></div>
+      <div><div class="mono" style="font-size:.78rem;color:var(--ink2);margin-bottom:6px">LEDGER RECORD WRITTEN FOR THIS EVENT</div><pre class="code" id="dmJson" style="margin-top:0"></pre><p class="note" id="dmJsonNote"></p></div>
+    </div>
+    <h3 style="margin-top:18px">The same event under every policy</h3>
+    <div class="scroll"><table><thead><tr><th>Policy</th><th>λ</th><th>Rule verdict</th><th>Reason</th></tr></thead><tbody id="dmAcross"></tbody></table></div>
+  </div>
+  <div class="demo">
+    <h4>What the product does next</h4>
+    <div id="dmNext"></div>
+  </div>
+</section>
+
+<section class="ch reveal" id="dm-lives" data-toc="Where Kairos lives">
+  <span class="tag"></span>
+  <h2>Where Kairos lives, and what goes in and out</h2>
+  <p class="oneline">Kairos sits between the AI agent and the tools the agent can call. Every tool call goes through it, and it decides whether to execute, sandbox or deny.</p>
+  <div class="demo">
+    <h4>Deployment diagram</h4>
+    <div class="scroll"><svg class="chart diag" id="dmDiagram" viewBox="0 0 960 450" role="img" aria-label="Kairos sits between the AI agent and production tools, with a sandbox, an evidence ledger, an offline calibration job and a drift monitor"></svg></div>
+    <ol class="steps" style="margin-top:14px">
+      <li><strong>Agent proposes.</strong> Instead of calling a tool directly, the agent sends the tool call and its context to Kairos.</li>
+      <li><strong>Gateway decides.</strong> It validates the request, applies the rule for the current λ, computes the allow probability and draws.</li>
+      <li><strong>Route.</strong> Allowed requests go to the real tool. A small random share of rule-denied requests go to the sandbox executor. The rest are denied with nothing executed.</li>
+      <li><strong>Reply.</strong> The agent gets the tool result, or a denial. For both denial paths we recommend returning the same normal denial, so the agent cannot tell which one ran.</li>
+      <li><strong>Log.</strong> Every decision is appended to the ledger together with the exact probability used. Outcome labels, such as whether a refund was fraud, are attached when they are known.</li>
+      <li><strong>Calibrate, once per period.</strong> An offline job reads the ledger, computes the certificate, and sends the new level back to the gateway. The drift monitor compares this period with the last and can force a reset.</li>
+    </ol>
+  </div>
+
+  <div class="grid g3">
+    <div class="card"><h3>Takes in</h3>
+      <p><strong>Per request:</strong> the tool name, its parameters (amount, row count, recipient type), the task context, and the observed flags from whatever detector the organization uses, such as "looks like PII" or "looks like a write".</p>
+      <p><strong>Per deployment:</strong> declared tolerances (safety 0.05, cost 0.15), the error budget δ, the exploration share ε, and the per-request cost budget.</p>
+      <p><strong>Later:</strong> true outcome labels when they resolve.</p></div>
+    <div class="card"><h3>Gives out</h3>
+      <p><strong>To the agent:</strong> the tool result, or a denial.</p>
+      <p><strong>To the operator:</strong> a decision record with the outcome, the allow probability and the level at decision time. Each period, a certificate that states the new level, every tested bound, the effective sample size and any hold reason, plus a drift flag.</p>
+      <p><strong>To an auditor:</strong> the full append-only ledger.</p></div>
+    <div class="card"><h3>Keeps</h3>
+      <p><strong>Current λ</strong> and the period counter.</p>
+      <p><strong>The ledger:</strong> one JSON line per decision and one record per period.</p>
+      <p><strong>Nothing about the agent's model.</strong> Kairos does not retrain or inspect the model, and calibration needs only the logs.</p></div>
+  </div>
+
+  <h3>What the messages look like</h3>
+  <div class="grid g2">
+    <div><div class="mono" style="font-size:.78rem;color:var(--ink2)">REQUEST  POST /decide</div>
+<pre class="code">{
+  "context": { "task": "refund_request" },
+  "action": {
+    "tool": "refund",
+    "amount": 480.0
+  }
+}</pre>
+    <div class="mono" style="font-size:.78rem;color:var(--ink2)">RESPONSE (illustrative values)</div>
+<pre class="code">{
+  "outcome": "allowed",
+  "prob_allow": 1.0,
+  "lam": 0.4,
+  "overhead_ms": 0.3
+}</pre></div>
+    <div><div class="mono" style="font-size:.78rem;color:var(--ink2)">LEDGER LINE (one per decision)</div>
+<pre class="code">{
+  "id": "9f3a1c07b2d4",
+  "period": 7,
+  "context": { "task": "refund_request" },
+  "action": { "tool": "refund", "amount": 480.0 },
+  "outcome": "allowed",
+  "prob_allow": 1.0,
+  "lam_at_decision": 0.4,
+  "cost": 0.05,
+  "loss": { "cost": 0.1 }
+}</pre>
+    <div class="mono" style="font-size:.78rem;color:var(--ink2)">PERIOD RECORD (one per period, abridged)</div>
+<pre class="code">{
+  "period": 7, "lam_before": 0.4, "lam_after": 0.4,
+  "decision": "hold",
+  "hold_reason": "current level failed its own certificate",
+  "drift_flag": false, "ess": 3120.4,
+  "certificate": {
+    "bound": "wsr", "n": 5000,
+    "delta_per_test": 1.5e-4,
+    "records": [ { "lambda": 0.4,
+      "est_safety": 0.021, "ucb_safety": 0.052, "binding": ["safety"] } ]
+  }
+}</pre></div>
+  </div>
+
+  <h3>Where it runs</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Question</th><th>Answer in the current prototype</th></tr></thead>
+    <tbody>
+      <tr><td>Position</td><td>Inline, between the agent runtime and the tool APIs. Every tool call must pass through it.</td></tr>
+      <tr><td>Form</td><td>A FastAPI service (<code>uvicorn homeostat.proxy.app:app --port 8400</code>) with <code>POST /decide</code>, <code>GET /status</code> and <code>POST /set_lambda</code>. The same logic also runs in-process inside the simulator.</td></tr>
+      <tr><td>Hot path</td><td>Validate, evaluate the rule, one random draw, one append to the ledger file. The response reports its own overhead in milliseconds.</td></tr>
+      <tr><td>Offline path</td><td>Calibration and the drift test run once per period over the ledger. An external controller then calls <code>/set_lambda</code> with the certified level.</td></tr>
+      <tr><td>Concurrency</td><td>Handlers run on a single event loop, so each request is processed atomically. State lives in one process, so scaling out would need shared state for λ and the random generator.</td></tr>
+      <tr><td>Operator view</td><td>A Streamlit dashboard reads experiment results and the ledger and plots λ over time and true risk against the limit.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>What the prototype does not do yet</h3>
+  <ul class="plain">
+    <li>It returns the decision but does not forward the call to a real tool or run a sandbox executor. The deployer supplies both.</li>
+    <li>Its request schema currently requires the simulator's ground-truth fields (for example <code>true_pii</code>) next to the observed ones. A real deployment would send only observed signals and attach true labels later.</li>
+    <li>The proxy records the cost loss at decision time. The safety loss has to come from a labeling process when the outcome resolves.</li>
+    <li>The step that calls <code>/set_lambda</code> after calibration is an external controller, not part of the service.</li>
+  </ul>
+</section>
+</main>
+
+<main id="tabTech" hidden>
+<div class="hero">
+  <div class="eyebrow">Technical reference</div>
+  <h1 style="font-size:clamp(1.9rem,4.4vw,2.9rem)">What Kairos computes, decision by decision</h1>
+  <p class="lede">The exact policy, estimator, bounds and control loop, with a ledger explorer that classifies individual decisions as allowed, sandboxed or blocked and shows how each one enters the risk certificate.</p>
+  <div class="note" style="margin-top:18px">Notation and constants follow the repository (<code>homeostat/</code>) and <code>DESIGN.md</code>. The explorer re-implements the environment, policy rule, oracle and estimator in JavaScript with the same constants, so its logic matches the Python code. Its random draws are its own, so it will not reproduce the paper's sweep numbers. Those are tabulated separately in section 8.</div>
+</div>
+
+<section class="ch reveal" id="tx-setting" data-toc="Formal setting">
+  <span class="tag"></span>
+  <h2>Formal setting</h2>
+  <p class="oneline">In short: the system picks one number, the autonomy level, and checks every period that the risk stays under limits that were agreed in advance.</p>
+  <p>Each interaction draws a context <em>x</em>, the agent proposes an action <em>a</em>, and a deployed policy decides whether to execute it. The problem is to choose the largest autonomy level λ whose true risk stays under every declared tolerance, using only logs produced by the more conservative policy that is actually deployed.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Symbol</th><th>Meaning</th><th>Value or range in the repository</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">λ</td><td>Autonomy level, the single dial that parameterizes the policy family</td><td>[0, 1], starts at λ<sub>init</sub> = 0.05</td></tr>
+      <tr><td class="mono">R<sub>λ</sub>(x,a)</td><td>Deterministic rule. It reads <em>observed</em> flags only (<code>obs_*</code>), never ground truth</td><td>{0, 1}</td></tr>
+      <tr><td class="mono">ε</td><td>Exploration mass: probability of executing a rule-blocked action in the sandbox</td><td>0.15 (so W<sub>max</sub> = 1/ε ≈ 6.67)</td></tr>
+      <tr><td class="mono">π<sub>λ</sub>(allow | x,a)</td><td>Stochastic policy: (1 − ε)·R<sub>λ</sub>(x,a) + ε, so it is at least ε everywhere</td><td>[ε, 1]</td></tr>
+      <tr><td class="mono">ℓ<sub>k</sub>(x,a)</td><td>Loss for constraint k. Safety is the indicator that the oracle says unsafe. Cost is min(1, cost / budget)</td><td>[0, 1]; budget $0.50 per request</td></tr>
+      <tr><td class="mono">α<sub>k</sub></td><td>Declared tolerance per constraint</td><td>safety 0.05, cost 0.15</td></tr>
+      <tr><td class="mono">R<sub>k</sub>(λ)</td><td>Estimand: E[π<sub>λ</sub>(allow|x,a) · ℓ<sub>k</sub>(x,a)]</td><td>Must satisfy R<sub>k</sub>(λ) ≤ α<sub>k</sub> for every k</td></tr>
+      <tr><td class="mono">δ</td><td>Total error budget over the whole run</td><td>0.05</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:14px">Two design rules carry the correctness argument. First, <code>prob_allow</code> is computed exactly and written to the ledger at decision time, never reconstructed later from policy code, because a silent mismatch would corrupt every importance weight. Second, the rule is hand-written and analytically evaluable (tool unlocks by λ, a refund cap interpolating $50 to $2,000, and a per-request cost ceiling interpolating $0.05 to $1.00), so likelihood ratios between any two λ are exact.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Capability</th><th>Unlocks at</th><th>Rule detail</th></tr></thead>
+    <tbody>
+      <tr><td>escalate, read-only <code>db_query</code></td><td class="num">λ ≥ 0.00</td><td>Always allowed, subject to the cost ceiling</td></tr>
+      <tr><td>refund</td><td class="num">λ ≥ 0.20</td><td>Amount ≤ cap(λ) = 50 + 1950·λ</td></tr>
+      <tr><td>external-capable <code>send_email</code></td><td class="num">λ ≥ 0.40</td><td>Blocked only if detector sees external and PII</td></tr>
+      <tr><td>mutating <code>db_query</code> (as observed)</td><td class="num">λ ≥ 0.60</td><td>Decided on <code>obs_mutating</code>, not the true flag</td></tr>
+      <tr><td><code>delete_record</code></td><td class="num">λ ≥ 0.80</td><td>Blocked if <code>obs_protected</code></td></tr>
+      <tr><td>Any tool</td><td class="num">all λ</td><td>Cost ≤ ceiling(λ) = 0.05 + 0.95·λ dollars</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="ch reveal" id="tx-ledger" data-toc="Decision ledger explorer">
+  <span class="tag"></span>
+  <h2>Decision ledger explorer</h2>
+  <p class="oneline">In short: this is a log of individual decisions. Each was allowed, sandboxed or blocked, and you can see how each one feeds the risk estimate.</p>
+  <p>A synthetic period of decisions, generated with the repository's environment parameters and policy rule. Each row is one ledger record. Filter by outcome, select a row for a written account of what happened and why, and set a candidate level λ′ to see how the same records are reweighted into a risk estimate and a certificate.</p>
+  <div class="demo">
+    <h4>Deployed policy and candidate</h4>
+    <div class="row">
+      <label class="ctl"><span>Deployed λ <output id="xLamO">0.40</output></span><input id="xLam" type="range" min="0.05" max="0.95" step="0.05" value="0.4"></label>
+      <label class="ctl"><span>Candidate λ′ <output id="xCandO">0.55</output></span><input id="xCand" type="range" min="0.05" max="0.95" step="0.05" value="0.55"></label>
+      <label class="ctl"><span>Exploration ε <output id="xEpsO">0.15</output></span><input id="xEps" type="range" min="0" max="0.5" step="0.01" value="0.15"></label>
+      <label class="ctl"><span>Decisions n <output id="xNO">2000</output></span><input id="xN" type="range" min="500" max="5000" step="500" value="2000"></label>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label class="ctl" style="flex:0 1 190px"><span>Upper bound</span>
+        <select id="xBound" class="sel"><option value="wsr">Betting (WSR), default</option><option value="bernstein">Empirical Bernstein</option><option value="hoeffding">Hoeffding</option></select></label>
+      <label class="ctl" style="flex:0 1 auto;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="xDrift" style="width:auto"><span style="display:inline">Drifted environment</span></label>
+      <button class="btn" id="xSeed">Resample period</button>
+    </div>
+    <div class="stats" id="xStats"></div>
+  </div>
+
+  <div class="demo">
+    <h4>Ledger</h4>
+    <div class="row" style="margin-bottom:12px">
+      <div class="seg" role="group" aria-label="Filter outcome" id="xFilter">
+        <button data-f="all" aria-pressed="true">All</button>
+        <button data-f="allowed" aria-pressed="false">Allowed</button>
+        <button data-f="sandboxed" aria-pressed="false">Sandboxed</button>
+        <button data-f="blocked" aria-pressed="false">Blocked</button>
+        <button data-f="violation" aria-pressed="false">Violations</button>
+      </div>
+      <span class="note" id="xCount" style="margin:0;border:0;padding:0"></span>
+    </div>
+    <div class="xgrid">
+      <div class="scroll xtab"><table id="xTable"><thead><tr><th>#</th><th>Proposed action</th><th>R<sub>λ</sub></th><th>π<sub>safe</sub></th><th>Outcome</th><th>Truth</th><th>w</th></tr></thead><tbody id="xBody"></tbody></table>
+        <button class="btn" id="xMore" style="margin-top:10px">Show more</button></div>
+      <div class="xdetail" id="xDetail" aria-live="polite"></div>
+    </div>
+    <div class="legend"><span><span class="pill g">allowed</span> executed in production, real effect</span><span><span class="pill o">sandboxed</span> rule denied, ε-draw executed it with no real effect</span><span><span class="pill">blocked</span> not executed, loss recorded as 0</span><span><span class="pill r">violation</span> allowed and truly unsafe</span></div>
+  </div>
+
+  <div class="demo">
+    <h4>Certificate for candidate λ′ from this period's records</h4>
+    <div class="scroll"><table>
+      <thead><tr><th>Constraint</th><th>Tolerance α<sub>k</sub></th><th>Estimate R̂<sub>k</sub>(λ′)</th><th>Upper bound</th><th>Floor on the bound</th><th>Clears?</th></tr></thead>
+      <tbody id="xCert"></tbody>
+    </table></div>
+    <div class="verdict mid" id="xVerdict"></div>
+    <p class="note" id="xCertNote"></p>
+  </div>
+</section>
+
+<section class="ch reveal" id="tx-anatomy" data-toc="Anatomy of a decision">
+  <span class="tag"></span>
+  <h2>Anatomy of one decision</h2>
+  <p class="oneline">In short: every request goes through the same seven steps, and the exact probability used is saved with the record.</p>
+  <p>The same path runs in the simulator (<code>loop/runner.py:run_period</code>) and in the FastAPI proxy (<code>proxy/app.py:/decide</code>). The hot path is rule evaluation, one Bernoulli draw and one ledger append. Calibration is offline.</p>
+  <ol class="steps">
+    <li><strong>Validate.</strong> <code>validate_action</code> checks that required fields exist for the tool and that arithmetic fields (<code>amount</code>, <code>tokens</code>, <code>rows</code>) are numeric. A malformed action returns HTTP 422 and writes nothing to the ledger.</li>
+    <li><strong>Evaluate the rule.</strong> R<sub>λ</sub>(x,a) from observed flags and the current λ.</li>
+    <li><strong>Compute π<sub>safe</sub>.</strong> p = (1 − ε)·R<sub>λ</sub> + ε. This exact value is stored on the record.</li>
+    <li><strong>Draw.</strong> u ~ Uniform(0,1). If u ≥ p the action is <em>blocked</em>.</li>
+    <li><strong>Route.</strong> If u &lt; p and R<sub>λ</sub> = 1 the action is <em>allowed</em> and really executes. If u &lt; p and R<sub>λ</sub> = 0 it is <em>sandboxed</em>: the outcome is observed with no real effect.</li>
+    <li><strong>Record losses.</strong> Executed actions (allowed or sandboxed) get ℓ<sub>safety</sub> from the oracle and ℓ<sub>cost</sub> = min(1, cost/0.50). Blocked actions never execute, so both losses are 0 and known immediately.</li>
+    <li><strong>Append.</strong> One JSONL record: id, period, context, action, outcome, prob_allow, lam_at_decision, cost, loss, resolved, lag.</li>
+  </ol>
+  <div class="scroll"><table>
+    <thead><tr><th>Outcome</th><th>Condition</th><th>Probability</th><th>Executed?</th><th>Real effect</th><th>Role in the estimator</th></tr></thead>
+    <tbody>
+      <tr><td><span class="pill g">allowed</span></td><td>R<sub>λ</sub> = 1 and draw passes</td><td class="num">1 (since (1−ε)+ε)</td><td>Yes</td><td>Yes</td><td>Observed loss, weight w = π<sub>λ′</sub>/π<sub>safe</sub></td></tr>
+      <tr><td><span class="pill o">sandboxed</span></td><td>R<sub>λ</sub> = 0 and draw passes</td><td class="num">ε</td><td>Yes, in sandbox</td><td>None</td><td>The only evidence about actions the deployed rule denies. Weight up to 1/ε</td></tr>
+      <tr><td><span class="pill">blocked</span></td><td>R<sub>λ</sub> = 0 and draw fails</td><td class="num">1 − ε</td><td>No</td><td>None</td><td>w = 0. Contributes nothing, and says nothing about what would have happened</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:14px">The third row is the reason exploration exists. If ε = 0, every rule-denied action is blocked with certainty, no loss is ever observed on that region, and a candidate λ′ that would permit it has an unbounded importance weight there. Support overlap fails by construction, and no amount of additional data fixes it.</p>
+</section>
+
+<section class="ch reveal" id="tx-estimator" data-toc="Estimator and bounds">
+  <span class="tag"></span>
+  <h2>Estimator, bounds and certificate</h2>
+  <p class="oneline">In short: logged outcomes are reweighted to estimate the risk of a higher level, then a safety cushion is added before deciding.</p>
+  <p>For a candidate λ′, each executed record is reweighted by how much more (or less) likely the candidate was to allow it than the deployed policy:</p>
+  <div class="formula">w<sub>i</sub> = clip( π<sub>λ′</sub>(allow|x<sub>i</sub>,a<sub>i</sub>) / π<sub>safe</sub>(allow|x<sub>i</sub>,a<sub>i</sub>), 0, 1/ε )    for executed records, 0 otherwise
+z<sub>i,k</sub> = w<sub>i</sub> · ℓ<sub>k,i</sub> ∈ [0, W<sub>max</sub>]            R̂<sub>k</sub>(λ′) = (1/n) Σ<sub>i</sub> z<sub>i,k</sub></div>
+  <p>This is the unnormalized (Horvitz-Thompson) form, which is exactly unbiased for R<sub>k</sub>(λ′). Because the deployed probability is at least ε, every ratio is at most 1/ε, so clipping is a safety net, not a correction. The effective sample size ESS = (Σw)² / Σw² is a diagnostic: below 10% of n, the period holds regardless of any bound.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Bound</th><th>(1−δ) upper bound on E[z]</th><th>Properties</th></tr></thead>
+    <tbody>
+      <tr><td>Hoeffding</td><td class="mono">mean(z) + W<sub>max</sub>·√( ln(1/δ) / 2n )</td><td>Simple and correct, loose when losses are rare</td></tr>
+      <tr><td>Empirical Bernstein</td><td class="mono">mean(z) + √( 2·var(z)·ln(2/δ) / n ) + 7·W<sub>max</sub>·ln(2/δ) / (3(n−1))</td><td>Variance-adaptive</td></tr>
+      <tr><td>Betting (WSR), default</td><td>Waudby-Smith and Ramdas capital process on z / W<sub>max</sub>, geometric grid of 500 candidate means</td><td>Tightest of the three for bounded rare losses. Rejects a mean m when wealth exceeds 1/δ</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Error budget</h3>
+  <div class="formula">δ<sub>test</sub> = δ / (K · |Λ| · T) = 0.05 / (2 · 11 · 15) ≈ 1.52 × 10<sup>−4</sup>        (fixed horizon, Bonferroni)</div>
+  <p>K is the number of constraints, |Λ| the number of grid points, and T the number of periods. Every test in every period gets this budget, so a union bound gives total failure probability at most δ.</p>
+  <h3>Selection rule</h3>
+  <p>The candidate grid is 11 points from λ<sub>t</sub> to min(1, λ<sub>t</sub> + 0.15). The loop walks it in ascending order and stops at the first λ that fails any constraint's bound or the ESS floor. The new level is the last point that passed, the longest valid ascending prefix, never an argmax. If even the first step fails, the level holds. <code>calibrate()</code> never lowers λ on its own. Demotion is the drift monitor's job.</p>
+</section>
+
+<section class="ch reveal" id="tx-control" data-toc="Control loop">
+  <span class="tag"></span>
+  <h2>The control loop</h2>
+  <p class="oneline">In short: each period the system checks for change, tests the next few levels, and moves up only as far as the evidence supports.</p>
+<pre class="code">for each period t:
+    D_t   ← run_period(agent, π_{λ_t}, n=5000)          # every record logs prob_allow
+    drift ← permutation_test(features(D_t), features(D_{t-1}), p &lt; 0.01)
+    if drift:
+        λ_{t+1} ← λ_init                                  # reset, re-earn from fresh data
+    else:
+        Λ ← linspace(λ_t, min(1, λ_t + 0.15), 11)
+        for λ in Λ ascending:
+            w ← clip(π_λ / π_safe, 0, 1/ε)  on executed records
+            if ESS(w) &lt; 0.10·n:  stop
+            for k in constraints:
+                if UCB_k(w·ℓ_k, δ_test) &gt; α_k:  stop
+        λ_{t+1} ← last λ that passed            # else hold at λ_t
+    append certificate + period record to ledger</pre>
+  <h3>Drift monitor</h3>
+  <p>Each decision is featurized as a one-hot task type plus its (capped) cost. The statistic is the L2 norm of the difference in feature means between this period and the previous one. Its null distribution comes from 200 label permutations of the pooled sample, and drift is flagged when (count + 1) / 201 &lt; 0.01. On a flag the level resets to λ<sub>init</sub>. The first drift experiment showed that merely holding was not enough: held at its pre-drift level, true safety risk stayed at 0.064 against α = 0.05.</p>
+  <p class="note">Inferred from the feature set: the test sees task mix and cost only. A shift that changed detector error rates or loss rates without moving the task mix or cost would not be flagged by it.</p>
+  <h3>Defaults</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Parameter</th><th>Value</th><th>Parameter</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">alphas</td><td class="num">safety 0.05, cost 0.15</td><td class="mono">n_per_period</td><td class="num">5000</td></tr>
+      <tr><td class="mono">delta</td><td class="num">0.05</td><td class="mono">n_periods</td><td class="num">15</td></tr>
+      <tr><td class="mono">epsilon</td><td class="num">0.15</td><td class="mono">lam_init</td><td class="num">0.05</td></tr>
+      <tr><td class="mono">budget_per_request</td><td class="num">$0.50</td><td class="mono">step_max / grid_size</td><td class="num">0.15 / 11</td></tr>
+      <tr><td class="mono">ess_floor_frac</td><td class="num">0.10</td><td class="mono">drift_pvalue</td><td class="num">0.01</td></tr>
+      <tr><td class="mono">bound</td><td class="num">wsr</td><td class="mono">sequential_delta_rho</td><td class="num">0.90</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="ch reveal" id="tx-floor" data-toc="Exploration floor">
+  <span class="tag"></span>
+  <h2>Exploration floor</h2>
+  <p class="oneline">In short: with too little data, or too small a sandbox share, the safety cushion can never get under the limit, so the level can never rise.</p>
+  <p>Every z<sub>i</sub> is non-negative, so mean(z) ≥ 0 for any dataset, and the all-zero dataset is the best case. That fixes a hard lower bound on each upper bound.</p>
+  <div class="formula">F<sub>Hoeffding</sub> = W<sub>max</sub>·√( ln(1/δ<sub>test</sub>) / 2n )             exact, holds for every dataset
+F<sub>Bernstein</sub> = 7·W<sub>max</sub>·ln(2/δ<sub>test</sub>) / (3(n−1))   exact, holds for every dataset
+F<sub>WSR</sub> ≈ W<sub>max</sub>·ln(1/δ<sub>test</sub>) / (0.9·n)           numerical: 1.0 to 3.5% below the true value in every cell tested</div>
+  <p><strong>Corollary.</strong> If F ≥ α<sub>k</sub> for some constraint, <code>calibrate()</code> under that bound can never certify any λ in any period, even when every decision is safe. The WSR floor is characterized numerically (a 300-trial perturbation check found no violation of "all-zero data minimizes the bound"), so it is strong empirical support, not a theorem.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Bound (n = 5000, ε = 0.15)</th><th>Floor</th><th>vs. α<sub>safety</sub> = 0.05</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Hoeffding</td><td class="num">0.198</td><td><span class="pill r">≈ 4× above</span></td><td>Provably cannot ratchet</td></tr>
+      <tr><td>Empirical Bernstein</td><td class="num">0.0295</td><td><span class="pill g">below</span></td><td>Can ratchet</td></tr>
+      <tr><td>Betting (WSR)</td><td class="num">0.0131</td><td><span class="pill g">below</span></td><td>Can ratchet</td></tr>
+    </tbody>
+  </table></div>
+  <p style="margin-top:12px">This explains an empirical result exactly: in the 20-run sweep, <code>hoeffding</code> never left λ<sub>init</sub>. At ε = 0.03 and n = 2000 the Hoeffding floor is about 1.56, above the maximum possible loss of 1.0, so the bound is vacuous. The floor is bound-specific, which is why the explorer's table above shows the floor of whichever bound you select.</p>
+</section>
+
+<section class="ch reveal" id="tx-ext" data-toc="Extensions">
+  <span class="tag"></span>
+  <h2>Delayed ground truth and an open horizon</h2>
+  <p class="oneline">In short: late outcomes are treated pessimistically, and the error budget is spread so it holds however long the system runs.</p>
+  <h3>Pessimistic imputation under resolution lag</h3>
+  <p>With <code>lag_max</code> &gt; 0, an executed decision resolves after a lag drawn from Uniform{0,…,lag_max} decisions, and counts as resolved only if it resolves before the period ends. At calibration, any unresolved record contributes the worst-case loss 1.0 (the supremum of every ℓ<sub>k</sub>) instead of its unknown value. That value dominates the true loss as a sure event, even if lag depends on the outcome, so the imputed z-sequence dominates the true one pointwise and any valid UCB on it remains a valid UCB on R<sub>k</sub>(λ). Blocked decisions never execute and resolve instantly. The cost is slower earning, measured below.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>lag_max (decisions)</th><th>0</th><th>250</th><th>1000</th><th>2500</th><th>5000</th></tr></thead>
+    <tbody>
+      <tr><td>Final λ (20 seeds)</td><td class="num">0.471</td><td class="num">no measurable change</td><td class="num">0.390</td><td class="num">0.148</td><td class="num">0.050 (all seeds stall)</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Worst observed true safety risk fell from 0.042 to 0.029 as lag grew, so coverage never broke.</p>
+  <h3>Sequential error budget</h3>
+  <p>The fixed-horizon split δ/(K·|Λ|·T) needs T in advance. Running T<sub>run</sub> periods with a split planned for 15 nominally spends T<sub>run</sub>·δ/15 in total, which is 0.133 at T<sub>run</sub> = 40 against a 0.05 budget. The sequential option uses a pre-committed geometric schedule instead:</p>
+  <div class="formula">δ<sub>t</sub> = δ<sub>total</sub> · (1 − ρ) · ρ<sup>t</sup>,  ρ = 0.90          Σ<sub>t≥0</sub> δ<sub>t</sub> = δ<sub>total</sub> for any horizon</div>
+  <p>Validity needs only Boole's inequality across periods, since each period uses fresh data. In the 20-seed sweep it climbs sooner than the fixed split for the first five periods, then trails, ending at final λ 0.442 versus 0.471. Conformal Selective Acting (Khosravi and Huo, 2026) proves a strictly stronger anytime-valid guarantee with an e-process and Ville's inequality, so this schedule is a cheaper, simpler alternative, not a new result.</p>
+</section>
+
+<section class="ch reveal" id="tx-eval" data-toc="Evaluation results">
+  <span class="tag"></span>
+  <h2>Evaluation protocol and results</h2>
+  <p class="oneline">In short: the full system stays under the safety limit, and versions without its key parts do not.</p>
+  <p>Twenty seeds, 15 periods, 5,000 decisions per period, ten modes, run in a process pool (about 11 minutes). True risk of each deployed level is computed by Monte Carlo against the known oracle, and the oracle level λ* is the largest grid point whose true risks all clear α. The system never sees any of this.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Mode</th><th>What changes</th><th>Final λ</th><th>True safety risk (α = 0.05)</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">homeostat</td><td>WSR, both constraints, ε = 0.15</td><td class="num">0.471</td><td class="num">0.036, never breaches</td></tr>
+      <tr><td class="mono">oracle</td><td>Deploys λ* from ground truth. Reference only</td><td class="num">0.575</td><td class="num">0.038</td></tr>
+      <tr><td class="mono">no-epsilon</td><td>ε = 0, weights degrade to {0,1}, W<sub>max</sub> has no valid value</td><td class="num">0.650</td><td class="num">0.100 (breach)</td></tr>
+      <tr><td class="mono">single-cost</td><td>Calibrates the cost constraint only</td><td class="num">1.000</td><td class="num">0.107 (breach)</td></tr>
+      <tr><td class="mono">hoeffding</td><td>Hoeffding bound</td><td class="num">0.050 (never moves)</td><td class="num">at floor</td></tr>
+      <tr><td class="mono">sequential</td><td>Geometric δ<sub>t</sub> schedule</td><td class="num">0.442</td><td class="num">same coverage behavior</td></tr>
+      <tr><td class="mono">canary</td><td>One candidate per period on a 5% real-traffic slice, raw point estimate vs α, no sandbox</td><td class="num">0.500</td><td class="num">0.038 (no breach at 5%)</td></tr>
+      <tr><td class="mono">crc_naive</td><td>No exploration: deploys λ<sub>try</sub> to all traffic, then checks retroactively</td><td class="num">0.650</td><td class="num">0.106 (breach)</td></tr>
+      <tr><td class="mono">static, single-safety, bernstein</td><td>Also in the sweep</td><td colspan="2">Not tabulated in the documents this page draws on</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Canary stress tests</h3>
+  <p>At a 1% trial slice the canary breached α in 13 of 20 seeds (worst observed risk 0.118), against 0 of 20 at 5%. Its promotion test compares a raw average on a small slice to α with no margin, so sampling noise alone produces false promotions. Under drift at period 9, <code>homeostat</code> exceeded α in a single period (0.0663, total excess 0.0163), then reset. <code>canary</code> had no monitor and held 0.072 to 0.075 over periods 9 to 14, a total excess of about 0.144, or 8.8 times larger. The post-drift floor at λ<sub>init</sub> is about 0.041, under α, so the excess is not a property of the drift scenario itself.</p>
+</section>
+
+<section class="ch reveal" id="tx-limits" data-toc="Assumptions and limits">
+  <span class="tag"></span>
+  <h2>Assumptions and limits</h2>
+  <p class="oneline">In short: these are simulation results, and the assumptions below say where they might not carry over.</p>
+  <ul class="plain">
+    <li><strong>Independence within a period.</strong> The bounds assume the z<sub>i</sub> in a period are i.i.d. Imputation keeps this property, and each period uses fresh data, which the union bound across periods relies on.</li>
+    <li><strong>Hand-written policy family.</strong> Exact likelihood ratios are what make the weights trustworthy, so the rule is not learned. Real deployments need a policy whose allow-probability can be computed and logged exactly.</li>
+    <li><strong>Synthetic environment.</strong> Every result is measured against a simulated oracle with a ~12% detector error rate. There is no live deployment, and the drift study covers one severity at one time.</li>
+    <li><strong>Sandbox fidelity.</strong> The method assumes a sandboxed execution reveals the same loss the real execution would. Where a sandbox cannot reproduce a harm, the certificate does not cover it.</li>
+    <li><strong>Residual risk is nonzero by design.</strong> The certificate bounds the expected loss rate under π<sub>λ</sub> against α. It does not promise that no individual violation occurs.</li>
+    <li><strong>Prior art.</strong> Conformal Policy Control has had a tool-assisted read only, and the safe-policy-improvement literature has not been fully reviewed by a person. The novelty claim is the combination of components, not any single one.</li>
+  </ul>
+</section>
+
+<section class="ch reveal" id="tx-repro" data-toc="Reproduce it">
+  <span class="tag"></span>
+  <h2>Reproducing the numbers</h2>
+  <p class="oneline">In short: a few commands reproduce every number.</p>
+<pre class="code">python -m pytest tests -q                                                # test suite
+python run_experiment.py --seeds 20 --periods 15 --n 5000                # no drift, all modes
+python run_experiment.py --seeds 20 --periods 15 --n 5000 --drift 9 \
+       --out results_v2_drift                                            # drift at period 9
+python run_experiment.py --workers 1                                     # sequential, clean traceback
+uvicorn homeostat.proxy.app:app --port 8400                              # /decide middleware</pre>
+  <div class="scroll"><table>
+    <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td class="mono">homeostat/env/</td><td>Synthetic agent, tools and cost model, ground-truth oracle, schema validation, Ollama agent and a boundary-probing persona</td></tr>
+      <tr><td class="mono">homeostat/policy/</td><td>Rule family and exact allow-probabilities with ε-exploration</td></tr>
+      <tr><td class="mono">homeostat/calibration/</td><td>Importance weights and ESS, the three bounds, joint λ search and δ schedules</td></tr>
+      <tr><td class="mono">homeostat/loop/</td><td>Period runner, drift test, oracle risk, canary and CRC-naive baselines</td></tr>
+      <tr><td class="mono">homeostat/ledger/</td><td>Decision and period records, append-only JSONL store</td></tr>
+      <tr><td class="mono">DESIGN.md</td><td>Derivations, ablations and the formal floor proposition</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note" style="margin-top:14px">The explorer on this page uses the same constants as <code>EnvParams</code>, <code>PolicySpec</code>, <code>oracle.py</code> and <code>weights.py</code>. The paper's sweep numbers come from the Python harness, not from this page.</p>
+</section>
+</main>
+
+</div>
+
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const NS='http://www.w3.org/2000/svg';
+function el(tag,attrs,txt){const e=document.createElementNS(NS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);if(txt!=null)e.textContent=txt;return e}
+
+/* mode toggle */
+const mS=$('#mSimple'),mF=$('#mFull');
+function setMode(m){document.body.dataset.mode=m;mS.setAttribute('aria-pressed',m==='simple');mF.setAttribute('aria-pressed',m==='full')}
+mS.onclick=()=>setMode('simple');mF.onclick=()=>setMode('full');setMode('full');
+if(reduced){const d=$('#heroDot');if(d&&d.parentNode)d.parentNode.remove()}
+
+/* look toggle */
+(function(){const b=$('#lookBtn'),h=document.documentElement;
+ function sync(){b.textContent=h.getAttribute('data-look')==='paper'?'Original look':'Paper look'}
+ b.onclick=()=>{const n=h.getAttribute('data-look')==='paper'?'classic':'paper';h.setAttribute('data-look',n);try{localStorage.setItem('kairosLook',n)}catch(e){}sync()};
+ sync()})();
+/* TOC + progress + reveal */
+const secs=$$('section.ch');
+const toc=$('#tocList');
+const mains={walk:$('#tabWalk'),demo:$('#tabDemo'),tech:$('#tabTech')};
+Object.keys(mains).forEach(k=>$$('section.ch',mains[k]).forEach((x,i)=>{const h=$('h2',x);if(h&&!h.dataset.n){h.dataset.n=1;h.insertAdjacentText('afterbegin',(i+1)+'. ')}}));
+function buildToc(k){toc.innerHTML='';$$('section.ch',mains[k]).forEach((s,i)=>{const li=document.createElement('li');const a=document.createElement('a');a.href='#'+s.id;a.textContent=(i+1)+'. '+s.dataset.toc;li.appendChild(a);toc.appendChild(li)})}
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');$$('.bar',e.target).forEach(b=>b.classList.add('in'))}})},{threshold:.08});
+secs.forEach(s=>io.observe(s));
+const io2=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){$$('#tocList a').forEach(l=>l.classList.toggle('on',l.getAttribute('href')==='#'+e.target.id))}})},{rootMargin:'-30% 0px -60% 0px'});
+secs.forEach(s=>io2.observe(s));
+function setTab(k){
+ Object.keys(mains).forEach(x=>{mains[x].hidden=x!==k});
+ $$('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===k));
+ $('#modeSeg').hidden=k!=='walk';document.body.dataset.tab=k;buildToc(k);
+ window.scrollTo(0,0);
+ try{history.replaceState(null,'',k==='walk'?'#':'#'+(k==='tech'?'technical':k))}catch(e){}
+}
+$$('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+document.addEventListener('click',e=>{const g=e.target.closest('[data-gotab]');if(g)setTab(g.dataset.gotab)});
+if(location.hash==='#technical')setTab('tech');else if(location.hash==='#demo')setTab('demo');else{document.body.dataset.tab='walk';buildToc('walk')}
+const prog=$('#prog');
+function onScroll(){const h=document.documentElement;const p=h.scrollTop/Math.max(1,h.scrollHeight-h.clientHeight);prog.style.transform='scaleX('+clamp(p,0,1)+')'}
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+
+/* count-up chips */
+$$('[data-count]').forEach(n=>{
+  if(reduced)return;const to=+n.dataset.count,suf=n.dataset.suffix||'';let t0=null;
+  const run=ts=>{t0=t0||ts;const p=clamp((ts-t0)/1200,0,1);n.textContent=Math.round(to*(1-Math.pow(1-p,3)))+suf;if(p<1)requestAnimationFrame(run)};
+  requestAnimationFrame(run);
+});
+
+/* lenses */
+const lenses=[
+ ['Agency theory','Jensen & Meckling, 1976','Handing authority to someone you cannot watch always costs something: monitoring and bonding. Authority should follow how reliable the delegate has shown to be.','The statistical certificate is a formal, continuously updated monitoring instrument.','Like checking in on a babysitter more at first, then less as they prove themselves.'],
+ ['Formal vs. real authority','Aghion & Tirole, 1997','Authority is only real if it survives contact with information the principal cannot otherwise check.','The certificate turns a declared tolerance into a verified one, every period.','A key you were given is only real if the door still opens when someone checks.'],
+ ['Trust in automation','Parasuraman & Riley, 1997; Lee & See, 2004','Trust should be calibrated, neither too much (misuse) nor too little (disuse), using honest, continuous signals about reliability.','The ratchet/hold decision, re-evaluated each period instead of granted once.','Not trusting a good helper wastes them. Trusting a bad one is dangerous.'],
+ ['Meaningful human control','Santoni de Sio & Van den Hoven, 2018','A system stays under human control only while it keeps tracking the reasons and facts a human would act on.','The drift monitor and the automatic reset give "tracking" a concrete statistical trigger.','If the map no longer matches the road, you stop and look again.'],
+ ['High-reliability organizing','Weick & Sutcliffe, 2007','Organizations that rarely fail stay sensitive to weak signals instead of assuming the design was right.','The drift monitor scans every period for early, faint signs of change, with no one needing to notice by feel.','A lifeguard who watches the water all day, not just at the start.'],
+ ['Algorithmic accountability','Kellogg et al., 2020; Raji et al., 2020; Mittelstadt, 2019','Principles and checklists are not enough; opaque authority breeds guessing and gaming. Permissions should be contestable.','The sandbox and the ledger form a running audit trail tied to numbers.','A diary of every decision, so anyone can look it up.'],
+ ['Safe exploration','Amodei et al., 2016','A system that must try new things should do it without risking catastrophe.','The sandbox is a boundable, practical version of safe exploration.','Practicing on the mats, not on the road.'],
+ ['Dynamic capabilities','Teece, Pisano & Shuen, 1997; Eisenhardt & Martin, 2000','Lasting advantage needs resilience to changing conditions, and is best seen as nameable routines.','The ratchet-hold-reset loop is exactly such a routine.','A habit you can name and repeat, not a vague "we are adaptive".']
+];
+const lg=$('#lenses');
+lenses.forEach((l,i)=>{const d=document.createElement('details');d.innerHTML='<summary>'+l[0]+'</summary><p style="margin-top:0"><span class="pill b">'+l[1]+'</span></p><p><strong>Key idea.</strong> '+l[2]+'</p><p><strong>Where it shows up.</strong> '+l[3]+'</p><p style="color:var(--kid-ink);background:var(--kid);border:1px solid var(--kid-line);border-radius:8px;padding:8px 12px"><strong>Plain version.</strong> '+l[4]+'</p>';lg.appendChild(d)});
+
+/* loop stepper */
+const steps=[
+ ['Deploy at λ','Run the policy at the current autonomy level','The agent proposes actions. The policy allows each with a probability set by λ. Allowed actions really happen. Anything blocked has a small chance ε of going to the sandbox instead.','The helper tries to do things. The monitor says yes or no based on the current pass. Once in a while a "no" becomes "try it on the practice mats".'],
+ ['Log evidence','Record what happened, real and sandboxed','Every outcome is logged with its context and with the probability it had of being allowed, so it can be reweighted later. For unresolved outcomes, the worst case is imputed until the truth is known.','Everything goes into a notebook, including how likely each thing was to happen. Not-yet-known results get a pencil-in "worst case".'],
+ ['Check drift','Did the world change since last period?','A two-sample permutation test compares this period\'s logs with the previous period\'s. If the distribution shifted, every old certificate is suspect.','Does today look like last week? If the town looks different, the old rules might not work.'],
+ ['Certify candidates','Upper confidence bound for each higher level','For each candidate level above λ, an importance-weighted estimate plus a confidence cushion is computed against every tolerance α<sub>k</sub>, with the error budget split across constraints, candidates and periods.','For each bigger pass, work out "how risky is it, plus how unsure am I?". Is that still under the safety line for every rule?'],
+ ['Decide','Ratchet, hold, or reset','If drift was detected: <strong>reset</strong> to the floor λ<sub>init</sub>. Else if some candidates clear every tolerance: <strong>ratchet</strong> to the largest in the valid prefix. Else <strong>hold</strong>. Reset takes priority.','Bad news about the town: back to the driveway. Everything looks safe: a bigger pass. Not sure yet: keep the same pass.'],
+ ['Next period','The decision becomes next period\'s λ','The new level becomes the deployed policy and the loop repeats. Autonomy is never granted without a certificate, and never kept after the evidence goes away.','The new pass goes to the helper, and next week starts. The helper keeps earning, or losing, freedom with proof.']
+];
+let cur=0,playing=true,timer=null,t0=0;
+const pipe=$('#pipe'),body=$('#stepBody'),tbar=$('#tokenBar');
+steps.forEach((s,i)=>{const b=document.createElement('button');b.innerHTML='<b>STEP '+(i+1)+'</b>'+s[0];b.onclick=()=>{go(i);if(playing){}};pipe.appendChild(b)});
+function go(i){cur=(i+steps.length)%steps.length;$$('button',pipe).forEach((b,k)=>{if(k===cur)b.setAttribute('aria-current','step');else b.removeAttribute('aria-current')});
+ const s=steps[cur];body.innerHTML='<h4>'+(cur+1)+'. '+s[0]+'</h4><p style="color:var(--ink2);margin-bottom:8px">'+s[1]+'</p><div class="tech"><p>'+s[2]+'</p></div><div class="kid"><p>'+s[3]+'</p></div>';
+ t0=performance.now()}
+$('#stPrev').onclick=()=>go(cur-1);$('#stNext').onclick=()=>go(cur+1);
+const play=$('#stPlay');play.onclick=()=>{playing=!playing;play.textContent=playing?'Pause':'Play';t0=performance.now()};
+if(reduced){playing=false;play.textContent='Play'}
+(function tick(ts){if(playing){const p=clamp((ts-t0)/5500,0,1);tbar.style.width=(p*100)+'%';if(p>=1)go(cur+1)}else tbar.style.width='0';requestAnimationFrame(tick)})(performance.now());
+go(0);
+
+/* sandbox canvas */
+(function(){
+ const c=$('#sbCanvas'),x=c.getContext('2d');let W,H,dpr;
+ function size(){dpr=devicePixelRatio||1;W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;x.setTransform(dpr,0,0,dpr,0,0)}
+ size();addEventListener('resize',size);
+ const S={lam:.4,eps:.15,dots:[],n:{prod:0,bad:0,block:0,sand:0,sbad:0},vis:false,acc:0,last:0};
+ const sl=$('#sLam'),se=$('#sEps');
+ function msg(){const m=$('#sbMsg');
+  if(S.eps===0)m.textContent='With ε = 0, nothing blocked ever reaches the sandbox. The system is blind to what a higher level would do, so it can never prove one is safe.';
+  else m.textContent='Sandboxed actions come from the blocked zone, so they show what raising λ would let through. Each one counts '+(1/S.eps).toFixed(1)+' times in the estimate, which is how a small share of evidence can speak for the whole blocked region.';
+  $('#cW').textContent=S.eps>0?(1/S.eps).toFixed(1)+'×':'∞'}
+ function lanes(){return {prod:W*.17,sand:W*.5,block:W*.83}}
+ function spawn(){
+  const r=Math.random(),bad=Math.random()<.02+.5*r*r;let lane;
+  if(r<S.lam)lane='prod';else lane=Math.random()<S.eps?'sand':'block';
+  const L=lanes();S.dots.push({sx:W/2+(Math.random()-.5)*30,sy:18,tx:L[lane]+(Math.random()-.5)*W*.22,ty:H-52+Math.random()*30,p:0,lane,bad,done:false,fade:1})}
+ function arrive(d){const n=S.n;if(d.lane==='prod'){n.prod++;if(d.bad)n.bad++}else if(d.lane==='block')n.block++;else{n.sand++;if(d.bad)n.sbad++}
+  $('#cProd').textContent=n.prod;$('#cBad').textContent=n.bad;$('#cBlock').textContent=n.block;$('#cSand').textContent=n.sand}
+ function draw(dt){
+  x.clearRect(0,0,W,H);const L=lanes(),bw=W*.28,bh=62,by=H-62;
+  const bins=[['prod','Production (real)',cv('--green-soft'),cv('--green')],['sand','Sandbox (practice)',cv('--orange-soft'),cv('--orange')],['block','Blocked',cv('--red-soft'),cv('--red')]];
+  x.font='500 12px '+cv('--f-mono');x.textAlign='center';
+  bins.forEach(b=>{x.fillStyle=b[2];x.strokeStyle=b[3];x.lineWidth=1.5;x.beginPath();x.roundRect(L[b[0]]-bw/2,by,bw,bh,10);x.fill();x.stroke();x.fillStyle=b[3];x.fillText(b[1],L[b[0]],by+bh-8)});
+  x.fillStyle=cv('--ink2');x.fillText('proposed actions arrive here',W/2,12);
+  const blue=cv('--blue'),red=cv('--red');
+  S.dots.forEach(d=>{if(!d.done){d.p+=dt/1.1;if(d.p>=1){d.p=1;d.done=true;arrive(d)}}else d.fade-=dt/1.2;
+   const p=d.p,e=p*p*(3-2*p),mx=(d.sx+d.tx)/2,my=H*.32;
+   const px=(1-e)*(1-e)*d.sx+2*(1-e)*e*mx+e*e*d.tx,py=(1-e)*(1-e)*d.sy+2*(1-e)*e*my+e*e*d.ty;
+   x.globalAlpha=clamp(d.fade,0,1)*(d.lane==='block'&&d.done?.5:1);x.fillStyle=d.bad?red:blue;x.beginPath();x.arc(px,py,5,0,6.283);x.fill()});
+  x.globalAlpha=1;S.dots=S.dots.filter(d=>d.fade>0);
+  // threshold marker
+  x.strokeStyle=cv('--ink2');x.setLineDash([4,4]);x.beginPath();x.moveTo(W*.02,H*.62);x.lineTo(W*.98,H*.62);x.stroke();x.setLineDash([]);
+  x.fillStyle=cv('--ink2');x.textAlign='left';x.fillText('λ = '+S.lam.toFixed(2)+' (actions riskier than this are blocked)',10,H*.62-6);
+ }
+ let last=0;function loop(ts){const dt=Math.min(.05,(ts-last)/1000||0);last=ts;
+  if(S.vis){if(!reduced){S.acc+=dt;while(S.acc>.14){S.acc-=.14;spawn()}}draw(dt)}requestAnimationFrame(loop)}
+ new IntersectionObserver(e=>{S.vis=e[0].isIntersecting;if(S.vis){size();draw(0)}}).observe(c);
+ sl.oninput=()=>{S.lam=+sl.value;$('#oLam').textContent=S.lam.toFixed(2)};
+ se.oninput=()=>{S.eps=+se.value;$('#oEps').textContent=S.eps.toFixed(2);msg()};
+ $('#sbBurst').onclick=()=>{for(let i=0;i<25;i++)setTimeout(spawn,i*40);if(reduced){S.vis=true;setTimeout(()=>{draw(0)},1300)}};
+ $('#sbClear').onclick=()=>{S.n={prod:0,bad:0,block:0,sand:0,sbad:0};['cProd','cBad','cBlock','cSand'].forEach(i=>$('#'+i).textContent=0)};
+ msg();requestAnimationFrame(loop);
+})();
+
+/* certificate demo */
+(function(){
+ const svg=$('#certSvg'),sN=$('#sN'),sE=$('#sE2');const ALPHA=.05,LC=.2;
+ const risk=l=>.15*Math.pow(l,1.8);
+ function draw(){
+  const n=+sN.value,e=+sE.value;$('#oN').textContent=n;$('#oE2').textContent=e.toFixed(2);
+  svg.innerHTML='';const L=56,R=620,T=16,B=240,ymax=.12;
+  const X=i=>L+(i+.5)*(R-L)/8,Y=v=>B-(clamp(v,0,ymax)/ymax)*(B-T);
+  for(let g=0;g<=4;g++){const v=g*.03;svg.appendChild(el('line',{x1:L,x2:R,y1:Y(v),y2:Y(v),stroke:cv('--line')}));svg.appendChild(el('text',{x:L-8,y:Y(v)+4,'text-anchor':'end','font-size':11},v.toFixed(2)))}
+  svg.appendChild(el('line',{x1:L,x2:R,y1:Y(ALPHA),y2:Y(ALPHA),stroke:cv('--red'),'stroke-width':2,'stroke-dasharray':'6 5'}));
+  svg.appendChild(el('text',{x:R,y:Y(ALPHA)-6,'text-anchor':'end','font-size':11,style:'fill:'+cv('--red')},'safety limit α = 0.05'));
+  let ok=true,best=LC;const cands=[];
+  for(let i=0;i<8;i++){const lam=+(.3+i*.1).toFixed(1);const w=1.1*Math.sqrt((lam-LC+.05)/(e*n));const est=risk(lam),ucb=est+w;
+   const pass=ucb<ALPHA;if(!pass)ok=false;if(ok)best=lam;cands.push({lam,est,ucb,pass:ok&&pass})}
+  cands.forEach((c,i)=>{const bw=34,x0=X(i)-bw/2;
+   svg.appendChild(el('rect',{x:x0,y:Y(c.est),width:bw,height:Math.max(0,B-Y(c.est)),rx:4,fill:c.pass?cv('--green'):cv('--ink2'),opacity:c.pass?.9:.45}));
+   svg.appendChild(el('line',{x1:X(i),x2:X(i),y1:Y(c.est),y2:Y(c.ucb),stroke:cv('--ink'),'stroke-width':2}));
+   svg.appendChild(el('line',{x1:X(i)-8,x2:X(i)+8,y1:Y(c.ucb),y2:Y(c.ucb),stroke:cv('--ink'),'stroke-width':2}));
+   svg.appendChild(el('text',{x:X(i),y:B+18,'text-anchor':'middle','font-size':12},'λ′='+c.lam.toFixed(1)))});
+  svg.appendChild(el('text',{x:L,y:B+40,'font-size':11},'bar = estimated risk · whisker top = upper bound · green = certified'));
+  const m=$('#certMsg');
+  if(best>LC){m.className='verdict ok';m.textContent='Ratchet: level moves from 0.20 up to '+best.toFixed(1)+'. Every step up to there has an upper bound under the limit.'}
+  else{m.className='verdict no';m.textContent='Hold: not even the first step is certified. The cushion is too wide for this much data. Add data or raise ε.'}
+ }
+ sN.oninput=sE.oninput=draw;draw();
+ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+ new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-look']});
+})();
+
+/* floor calculator */
+(function(){
+ const fE=$('#fE'),fN=$('#fN'),svg=$('#floorSvg');
+ const dt=.05/(2*11*15);
+ function draw(){
+  const e=+fE.value,n=+fN.value;$('#oFe').textContent=e.toFixed(2);$('#oFn').textContent=n;
+  const fl=(1/e)*Math.log(1/dt)/(.9*n);const scale=.2;
+  svg.innerHTML='';const L=20,R=620;
+  svg.appendChild(el('rect',{x:L,y:30,width:R-L,height:26,rx:6,fill:cv('--surface2')}));
+  const w=clamp(fl/scale,0,1)*(R-L);const bad=fl>=.05;
+  svg.appendChild(el('rect',{x:L,y:30,width:Math.max(2,w),height:26,rx:6,fill:bad?cv('--red'):cv('--green')}));
+  const ax=L+(.05/scale)*(R-L);
+  svg.appendChild(el('line',{x1:ax,x2:ax,y1:22,y2:64,stroke:cv('--ink'),'stroke-width':2,'stroke-dasharray':'4 3'}));
+  svg.appendChild(el('text',{x:ax,y:16,'text-anchor':'middle','font-size':11},'limit α = 0.05'));
+  svg.appendChild(el('text',{x:L,y:88,'font-size':12},'floor = '+(fl>=1?fl.toFixed(2):fl.toFixed(4))+(fl>scale?'  (off the scale, shown full)':'')));
+  svg.appendChild(el('text',{x:R,y:88,'text-anchor':'end','font-size':11},'scale 0 to 0.20'));
+  const m=$('#floorMsg');
+  if(bad){m.className='verdict no';m.textContent='Locked. The smallest possible upper bound ('+fl.toFixed(3)+') is above the limit, so no data, however good, can ever certify an increase.'}
+  else if(fl>.03){m.className='verdict mid';m.textContent='Possible but tight. The floor ('+fl.toFixed(3)+') leaves little room under 0.05, so real risk must be very low to ratchet.'}
+  else{m.className='verdict ok';m.textContent='Room to move. The floor ('+fl.toFixed(4)+') is well under the limit, so a safe system can be certified.'}
+ }
+ fE.oninput=fN.oninput=draw;
+ $$('[data-pre]').forEach(b=>b.onclick=()=>{const[a,c]=b.dataset.pre.split(',');fE.value=a;fN.value=c;draw()});
+ draw();
+ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+ new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-look']});
+})();
+
+/* ratchet simulator */
+(function(){
+ const svg=$('#simSvg'),msg=$('#simMsg');const ALPHA=.05,LI=.05,EPS=.15,N=5000,TMAX=15;
+ let st,timer=null;
+ function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+ const risk=(l,d)=>(d?.24:.15)*Math.pow(l,1.8);
+ function init(){clearInterval(timer);timer=null;$('#simPlay').textContent='Auto-play';st={t:0,lam:LI,lamC:LI,drift:false,driftPeriod:null,handled:false,hist:[],r:rng(7)};msg.className='verdict mid';msg.textContent='Period 0 of 15. Both designs start at the conservative floor, λ = 0.05.';$('#simDrift').disabled=false;$('#simNext').disabled=false;draw()}
+ function gauss(){let u=0,v=0;while(!u)u=st.r();v=st.r();return Math.sqrt(-2*Math.log(u))*Math.cos(6.283*v)}
+ function step(){
+  if(st.t>=TMAX)return;st.t++;const d=st.drift&&st.t>=st.driftPeriod;
+  const rec={t:st.t,lam:st.lam,lamC:st.lamC,rc:risk(st.lam,d),rcC:risk(st.lamC,d),drift:d&&st.t===st.driftPeriod};
+  st.hist.push(rec);let text='';
+  // certified
+  if(d&&!st.handled){st.handled=true;st.lam=LI;text='Certified: drift detected, reset to the floor. '}
+  else{let best=st.lam,ok=true;for(let k=1;k<=4;k++){const cand=+(st.lam+.05*k).toFixed(2);const ucb=risk(cand,d)+1.1*Math.sqrt((cand-st.lam+.05)/(EPS*N));if(ucb>=ALPHA)ok=false;if(ok)best=cand}
+   text=best>st.lam?'Certified: ratchet up to '+best.toFixed(2)+'. ':'Certified: hold at '+st.lam.toFixed(2)+'. ';st.lam=Math.min(1,best)}
+  // canary
+  const cand=+(st.lamC+.1).toFixed(2);const est=risk(cand,d)+.012*gauss();
+  if(est<ALPHA){st.lamC=Math.min(1,cand);text+='Canary: promoted to '+st.lamC.toFixed(2)+'.'}else text+='Canary: held at '+st.lamC.toFixed(2)+'.';
+  const over=rec.rc>ALPHA,overC=rec.rcC>ALPHA;
+  msg.className='verdict '+(over||overC?'no':'mid');
+  msg.textContent='Period '+st.t+' of '+TMAX+'. '+(rec.drift?'Drift hit this period. ':'')+'True risk: certified '+rec.rc.toFixed(3)+', canary '+rec.rcC.toFixed(3)+' (limit 0.05). '+text;
+  if(st.t>=TMAX){clearInterval(timer);timer=null;$('#simPlay').textContent='Auto-play';$('#simNext').disabled=true;$('#simDrift').disabled=true}
+  draw()}
+ function panel(y0,h,key,keyC,ymax,title,fmt,alpha){
+  const L=48,R=620,X=t=>L+(t-1)/(TMAX-1)*(R-L-10),Y=v=>y0+h-(clamp(v,0,ymax)/ymax)*h;
+  svg.appendChild(el('text',{x:L,y:y0-8,'font-size':11,style:'fill:'+cv('--ink')},title));
+  for(let g=0;g<=2;g++){const v=ymax*g/2;svg.appendChild(el('line',{x1:L,x2:R,y1:Y(v),y2:Y(v),stroke:cv('--line')}));svg.appendChild(el('text',{x:L-6,y:Y(v)+4,'text-anchor':'end','font-size':10},fmt(v)))}
+  if(alpha){svg.appendChild(el('line',{x1:L,x2:R,y1:Y(ALPHA),y2:Y(ALPHA),stroke:cv('--red'),'stroke-dasharray':'6 5','stroke-width':1.6}))}
+  if(st.driftPeriod&&st.drift){const dx=X(st.driftPeriod);svg.appendChild(el('line',{x1:dx,x2:dx,y1:y0,y2:y0+h,stroke:cv('--orange'),'stroke-dasharray':'3 4'}));svg.appendChild(el('text',{x:dx+4,y:y0+12,'font-size':10,style:'fill:'+cv('--orange')},'drift'))}
+  [[keyC,cv('--orange')],[key,cv('--blue')]].forEach(([k,col])=>{
+   if(!st.hist.length)return;let dstr='';st.hist.forEach((p,i)=>{const px=X(p.t),py=Y(p[k]);dstr+=(i?(' H'+px+' V'+py):('M'+px+','+py))});
+   svg.appendChild(el('path',{d:dstr,fill:'none',stroke:col,'stroke-width':2.6,'stroke-linejoin':'round'}));
+   const lp=st.hist[st.hist.length-1];svg.appendChild(el('circle',{cx:X(lp.t),cy:Y(lp[k]),r:4.5,fill:col}))});
+ }
+ function draw(){
+  svg.innerHTML='';panel(24,140,'lam','lamC',.8,'Autonomy level λ',v=>v.toFixed(1),false);
+  panel(222,120,'rc','rcC',.1,'True safety risk this period',v=>v.toFixed(2),true);
+  for(let t=1;t<=TMAX;t+=2){const L=48,R=620,px=L+(t-1)/(TMAX-1)*(R-L-10);svg.appendChild(el('text',{x:px,y:362,'text-anchor':'middle','font-size':10},t))}
+  svg.appendChild(el('text',{x:48,y:384,'font-size':10},'period'));
+ }
+ $('#simNext').onclick=step;
+ $('#simPlay').onclick=()=>{if(timer){clearInterval(timer);timer=null;$('#simPlay').textContent='Auto-play';return}$('#simPlay').textContent='Pause';timer=setInterval(step,900)};
+ $('#simDrift').onclick=()=>{if(st.drift)return;st.drift=true;st.driftPeriod=st.t+1;$('#simDrift').disabled=true;msg.className='verdict mid';msg.textContent='Drift will hit at period '+st.driftPeriod+'. Press Next period to see what each design does.'; draw()};
+ $('#simReset').onclick=init;init();
+ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+ new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-look']});
+})();
+
+/* results bars */
+(function(){
+ const rows=[
+  ['Certified mechanism','this paper',.471,.036,'',"Reaches 82% of the oracle ceiling and stays under the limit in all 20 runs. This is the design the paper proposes."],
+  ['Oracle ceiling','reference only, uses hidden truth',.575,.038,'ref',"The highest safe level if the truth were known instantly. No real organization has this. It is only a yardstick."],
+  ['No sandbox (ablation)','certified, but ε = 0',.65,.100,'bad',"Without practice evidence it cannot see what higher levels do, so it underestimates risk and over-ratchets. Risk doubles to 0.100."],
+  ['One constraint only (ablation)','ignores the cost rule',1.0,.107,'bad',"Checking only the safety rule and not the cost rule runs all the way to λ = 1.0, with risk 0.107, about twice the limit."],
+  ['Canary rollout','5% trial slice',.5,.038,'o',"Did not break the limit at the default slice, but has no guarantee that it will not. Section 13 shows where it does."],
+  ['Unrestricted trial deployment','no sandbox, trial on all traffic',.65,.106,'bad',"The only way to learn about a higher level is to deploy it to everyone and look afterward. Risk 0.106, about twice the limit."]
+ ];
+ const box=$('#resBars'),msgEl=$('#resMsg');
+ rows.forEach((r,i)=>{const b=document.createElement('button');b.className='brow';b.setAttribute('aria-pressed',i===0);
+  const col=r[4]==='ref'?'ref':(r[4]==='bad'?'bad':(r[4]==='o'?'o':''));
+  const riskCol=r[3]>.05?'bad':(r[4]==='o'?'o':(r[4]==='ref'?'ref':''));
+  b.innerHTML='<div class="nm">'+r[0]+'<small>'+r[1]+'</small></div><div><span class="bar-lbl">Final autonomy level λ</span><div class="bar"><i class="'+(r[4]==='bad'?'':col)+'" style="width:'+(r[2]*100)+'%"></i><em>'+r[2].toFixed(3)+'</em></div></div><div><span class="bar-lbl">Realized safety risk (dashed = limit)</span><div class="bar"><i class="'+riskCol+'" style="width:'+(r[3]/.12*100)+'%"></i><span class="al" style="left:'+(.05/.12*100)+'%"></span><em>'+r[3].toFixed(3)+'</em></div></div>';
+  b.onclick=()=>{$$('.brow',box).forEach(x=>x.setAttribute('aria-pressed','false'));b.setAttribute('aria-pressed','true');msgEl.textContent=r[5]};box.appendChild(b)});
+ msgEl.textContent=rows[0][5];
+})();
+
+/* seeds */
+(function(){
+ const g=$('#seeds');for(let i=0;i<20;i++)g.appendChild(document.createElement('i'));
+ const cells=$$('i',g),b5=$('#sl5'),b1=$('#sl1');
+ function set(k){const red=k===1?13:0;cells.forEach((c,i)=>{c.style.transitionDelay=(i*25)+'ms';c.classList.toggle('x',i<red)});
+  b5.classList.toggle('pri',k===5);b1.classList.toggle('pri',k===1);b5.setAttribute('aria-pressed',k===5);b1.setAttribute('aria-pressed',k===1);
+  $('#slBig').textContent=k===1?'65%':'0%';$('#slBig').style.color=k===1?'var(--red)':'var(--green)';
+  $('#slTxt').textContent=k===1?'13 of 20 runs breached the limit. The worst run reached 0.118, more than twice the tolerance.':'0 of 20 runs breached the limit at the default 5% slice (average risk 0.038).'}
+ b5.onclick=()=>set(5);b1.onclick=()=>set(1);set(1);
+})();
+
+/* drift timeline */
+(function(){
+ const t=$('#tl');const hd=['','P9','P10','P11','P12','P13','P14'];
+ hd.forEach(h=>{const d=document.createElement('div');d.className='h';d.textContent=h;t.appendChild(d)});
+ const rows=[['Certified',['0.066','ok','ok','ok','ok','ok'],[1,0,0,0,0,0]],['Canary',['0.072','0.074','0.075','0.075','0.074','0.073'],[1,1,1,1,1,1]]];
+ rows.forEach(r=>{const l=document.createElement('div');l.className='l';l.textContent=r[0];t.appendChild(l);
+  r[2].forEach((x,i)=>{const c=document.createElement('div');c.className='c'+(x?' x':'');c.textContent=x?'over':'ok';c.title=x?'above the 0.05 limit':'under the 0.05 limit';t.appendChild(c)})});
+ const n=document.createElement('div');n.className='note';n.style.gridColumn='1/-1';n.style.margin='4px 0 0';n.textContent='Reported values: certified 0.0663 in period 9 then back under the limit; canary 0.072 to 0.075 in every period from 9 to 14.';t.appendChild(n);
+})();
+
+/* lag demo */
+(function(){
+ const D=[[0,.471,.042],[250,.471,.042],[1000,.390,.035],[2500,.148,.030],[5000,.050,.029]];
+ const msgs=['No lag: every outcome is known immediately. Final autonomy 0.471.','A lag of 250 decisions made no measurable difference. A paired check showed it was noise.','Lag of 1,000: real cost begins. Final autonomy falls to 0.390.','Lag of 2,500: half a period of lag. Autonomy falls to 0.148.','Lag of 5,000, a full period: all 20 runs stall at the starting level 0.050, because too much evidence is still pending to certify anything.'];
+ const s=$('#sLag');
+ function d(){const k=+s.value,r=D[k];$('#oLag').textContent=r[0];$('#lagV').textContent=r[1].toFixed(3);$('#lagBar').style.width=(r[1]*100)+'%';
+  $('#lagMsg').textContent=msgs[k]}
+ s.oninput=d;d();
+ const lm=$('#lagMsg');lm.className='verdict mid';
+})();
+
+/* budget demo */
+(function(){
+ const s=$('#sT');
+ function d(){const T=+s.value,flat=T*.05/15,geo=.05*(1-Math.pow(.9,T));
+  $('#oT').textContent=T;$('#spFlat').textContent=flat.toFixed(3);$('#spGeo').textContent=geo.toFixed(3);
+  $('#bFlat').style.width=clamp(flat/.15*100,0,100)+'%';$('#bGeo').style.width=clamp(geo/.15*100,0,100)+'%';
+  $('#alBudget').style.left=(.05/.15*100)+'%';
+  const m=$('#spMsg');
+  if(flat>.05+1e-9){m.className='verdict no';m.textContent='The fixed split has spent '+flat.toFixed(3)+' against a budget of 0.050 ('+(flat/.05).toFixed(1)+'× over). The geometric schedule is at '+geo.toFixed(3)+', still within budget.'}
+  else{m.className='verdict ok';m.textContent='Within budget for both. The fixed split is only valid up to its planned T = 15. Push the slider beyond 15 to see it break.'}}
+ s.oninput=d;d();
+})();
+
+/* implications */
+(function(){
+ const I=[
+  ['Meaningful autonomy without giving up assurance','The certified mechanism reaches 82% of the safely achievable ceiling with no breach in 20 runs.','Replace one-time, vetting-based grants with a continuously re-evaluated certificate tied to declared tolerances.'],
+  ['A mis-sized sandbox fails silently','Some settings make certification impossible. A stuck system just looks cautious.','Check the exploration rate and sample size against your tolerance before deployment, not after the system seems stuck.'],
+  ['Small trial slices are a risk parameter','A canary at a realistic 1% slice breached the limit in 65% of runs.','Give trial-slice size its own sign-off. It is not an implementation detail.'],
+  ['Drift handling is the biggest single effect','One period of exposure and self-correction, versus a persistent lapse with about 9 times the total excess.','Budget for drift detection and automatic reset from the start, not after an incident.'],
+  ['Failures land on people who did not choose the risk','Each failure mode exposes a customer or data subject, often with no signal that anything went wrong.','Treat trial size and drift response as stakeholder-protection decisions, not only technical or cost choices.']
+ ];
+ const w=$('#impl');
+ I.forEach((r,i)=>{const d=document.createElement('details');if(i===0)d.open=true;d.innerHTML='<summary>'+r[0]+'</summary><p><span class="pill b">Finding</span> '+r[1]+'</p><p><span class="pill g">Do this</span> '+r[2]+'</p>';w.appendChild(d)});
+})();
+
+/* glossary */
+(function(){
+ const G=[
+  ['Autonomy level (λ)','The one dial that says how much the agent may do on its own.','Like the distance your parents allow you to bike alone.'],
+  ['Tolerance (α)','The most risk the organization is willing to accept. Here the safety limit is 0.05.','The safety line you must stay under.'],
+  ['Ratchet / hold / reset','Ratchet: raise λ. Hold: keep it. Reset: drop it to the safe floor.','Move up a step, stay put, or go back to the driveway.'],
+  ['Exploration share (ε)','The small chance that a blocked action goes to the sandbox so its outcome can be seen.','How often you let someone practice on the mats.'],
+  ['Sandbox','A place where actions run with no real effect but the outcome is recorded.','The practice playground with soft mats.'],
+  ['Importance weight','A correction that makes evidence gathered under one policy speak for a different policy. Capped at 1/ε.','If you only saw a few kids try something, each one counts for a lot of others like them.'],
+  ['Certificate / upper confidence bound','A number that is very likely above the true risk, built from the data. The level only rises if it is under the limit.','"Risk plus a cushion for not being sure."'],
+  ['Exploration floor','The smallest value the upper bound can ever take, even if all outcomes are safe.','The smallest "maybe I am wrong" cushion, however good things look.'],
+  ['Drift','A change in what the agent sees or what the data looks like, so old evidence may not apply.','Moving to a new town.'],
+  ['Oracle','A reference that knows the hidden truth. It exists only in the simulation, to grade the designs.','The teacher with the answer key.'],
+  ['Canary rollout','Try the higher level on a small slice of real traffic and promote it if it looks fine on raw numbers.','Let one kid try the longer route first and check how that one kid did.'],
+  ['Resolution lag','Time before the true outcome of a decision is known.','Homework that has not been handed in yet.'],
+  ['δ (error budget)','The small chance, set in advance, that a certificate is wrong. It is spread across constraints, levels and periods.','A jar of "chances to be wrong" you must not overspend.'],
+  ['Union bound','Adding up small error chances to cover all of them at once.','If each of 10 jars can leak a tiny bit, the total leak is at most the sum.']
+ ];
+ const w=$('#gloss');
+ G.forEach(g=>{const d=document.createElement('details');d.innerHTML='<summary>'+g[0]+'</summary><p>'+g[1]+'</p><p style="color:var(--kid-ink);background:var(--kid);border:1px solid var(--kid-line);border-radius:8px;padding:8px 12px"><strong>Plain version.</strong> '+g[2]+'</p>';w.appendChild(d)});
+})();
+})();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s);
+const cvv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const wrap=$('#t3Wrap'),canvas=$('#t3');
+if(!wrap)return;
+function fail(m){wrap.innerHTML='<p class="note" style="padding:20px">'+m+'</p>'}
+if(typeof THREE==='undefined'){fail('The 3D view could not load its library. The other demos still work.');return}
+let renderer;
+try{renderer=new THREE.WebGLRenderer({canvas:canvas,antialias:true})}catch(e){fail('This browser blocked WebGL, so the 3D view cannot run. The other demos still work.');return}
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+
+const H=5,LAM0=.1,YOFF=.4;
+const S={lam:LAM0,lamV:LAM0,eps:.15,auto:!reduced,gov:true,risky:false,
+  worldShift:false,shiftNext:false,handled:true,alarm:false,
+  period:0,pc:0,pAllowed:0,pHarm:0,ok:0,harm:0,stop:0,blk:0,sand:0,pkt:0};
+let lastFeed=0;
+
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(40,1,.1,200);
+const C={};
+function pal(){['blue','red','orange','green','surface','surface2','ink','ink2','line'].forEach(k=>{C[k]=new THREE.Color(cvv('--'+k))})}
+pal();
+
+/* hatch texture for the denied region */
+const hc=document.createElement('canvas');hc.width=hc.height=32;
+{const hx=hc.getContext('2d');hx.strokeStyle='#fff';hx.lineWidth=2.2;hx.beginPath();hx.moveTo(0,32);hx.lineTo(32,0);hx.moveTo(-8,8);hx.lineTo(8,-8);hx.moveTo(24,40);hx.lineTo(40,24);hx.stroke()}
+const hatchTex=new THREE.CanvasTexture(hc);hatchTex.wrapS=hatchTex.wrapT=THREE.RepeatWrapping;
+
+const M={
+ safe:new THREE.MeshStandardMaterial({roughness:.9,metalness:0}),
+ bad:new THREE.MeshStandardMaterial({roughness:.9,metalness:0,flatShading:true}),
+ edge:new THREE.LineBasicMaterial(),
+ hatch:new THREE.MeshBasicMaterial({map:hatchTex,transparent:true,opacity:.75,side:THREE.DoubleSide,depthWrite:false}),
+ slot:new THREE.MeshBasicMaterial({transparent:true,opacity:.1,side:THREE.DoubleSide,depthWrite:false}),
+ slotLine:new THREE.LineBasicMaterial(),
+ wallLine:new THREE.LineBasicMaterial(),
+ post:new THREE.MeshStandardMaterial({roughness:.8}),
+ floor:new THREE.MeshStandardMaterial({roughness:1}),
+ plat:new THREE.MeshStandardMaterial({roughness:.9}),
+ platLine:new THREE.LineBasicMaterial(),
+ sandFill:new THREE.MeshBasicMaterial({transparent:true,opacity:.1,depthWrite:false}),
+ sandLine:new THREE.LineBasicMaterial(),
+ agent:new THREE.MeshBasicMaterial({transparent:true,opacity:.1,depthWrite:false}),
+ agentLine:new THREE.LineBasicMaterial(),
+ axis:new THREE.LineBasicMaterial(),
+ ring:new THREE.MeshStandardMaterial({roughness:.6}),
+ tOk:new THREE.MeshStandardMaterial({roughness:.9}),
+ tHarm:new THREE.MeshStandardMaterial({roughness:.9}),
+ tSand:new THREE.MeshStandardMaterial({roughness:.9}),
+ tBlk:new THREE.MeshStandardMaterial({roughness:.9})
+};
+const grid=new THREE.GridHelper(44,44,0xffffff,0xffffff);grid.material.transparent=true;grid.material.opacity=.5;scene.add(grid);
+function applyPal(){
+ pal();scene.background=C.surface2.clone();
+ M.safe.color.copy(C.blue);M.bad.color.copy(C.red);M.edge.color.copy(C.ink);
+ M.hatch.color.copy(C.ink2);M.slot.color.copy(C.green);M.slotLine.color.copy(C.green);M.wallLine.color.copy(C.ink2);
+ M.post.color.copy(C.ink2);
+ M.floor.color.copy(C.surface);if(S.worldShift)M.floor.color.lerp(C.orange,.16);
+ M.plat.color.copy(C.green).lerp(C.surface,.55);M.platLine.color.copy(C.green);
+ M.sandFill.color.copy(C.orange);M.sandLine.color.copy(C.orange);
+ M.agent.color.copy(C.ink2);M.agentLine.color.copy(C.ink2);M.axis.color.copy(C.ink2);
+ M.ring.color.copy(S.alarm?C.orange:C.blue);
+ M.tOk.color.copy(C.blue);M.tHarm.color.copy(C.red);M.tSand.color.copy(C.orange);M.tBlk.color.copy(C.ink2);
+ grid.material.color.copy(C.line);
+}
+scene.add(new THREE.AmbientLight(0xffffff,.95));
+const sun=new THREE.DirectionalLight(0xffffff,.45);sun.position.set(6,14,10);scene.add(sun);
+
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(44,26),M.floor);floor.rotation.x=-Math.PI/2;floor.position.y=-.02;scene.add(floor);
+grid.position.y=.01;
+
+function edgesOf(geo,mat,pos){const l=new THREE.LineSegments(new THREE.EdgesGeometry(geo),mat);if(pos)l.position.copy(pos);scene.add(l);return l}
+// agent (source) and y axis
+const agentGeo=new THREE.BoxGeometry(.5,6,8.4);
+const agent=new THREE.Mesh(agentGeo,M.agent);agent.position.set(-10.2,3,0);scene.add(agent);edgesOf(agentGeo,M.agentLine,agent.position);
+function line(pts,mat){const g=new THREE.BufferGeometry().setFromPoints(pts.map(p=>new THREE.Vector3(p[0],p[1],p[2])));const l=new THREE.Line(g,mat);scene.add(l);return l}
+line([[-11.4,YOFF,-4.6],[-11.4,H,-4.6]],M.axis);
+[0,.5,1].forEach(r=>{const y=YOFF+r*(H-YOFF);line([[-11.4,y,-4.6],[-11,y,-4.6]],M.axis)});
+line([[-9.6,.04,5],[8.4,.04,5]],M.axis); // flow axis
+
+// gate
+[-4.3,4.3].forEach(z=>{const p=new THREE.Mesh(new THREE.BoxGeometry(.2,6.6,.2),M.post);p.position.set(0,3.3,z);scene.add(p)});
+const upper=new THREE.Mesh(new THREE.PlaneGeometry(8.3,1),M.hatch);upper.rotation.y=Math.PI/2;scene.add(upper);
+const rectPts=[[0,-.5,-4.15],[0,-.5,4.15],[0,.5,4.15],[0,.5,-4.15]];
+function loop(mat){const g=new THREE.BufferGeometry().setFromPoints(rectPts.map(p=>new THREE.Vector3(p[0],p[1],p[2])));const l=new THREE.LineLoop(g,mat);scene.add(l);return l}
+const upperEdge=loop(M.wallLine),slotEdge=loop(M.slotLine);
+const slot=new THREE.Mesh(new THREE.PlaneGeometry(8.3,1),M.slot);slot.rotation.y=Math.PI/2;scene.add(slot);
+function updateGate(){
+ const sh=YOFF+S.lamV*(H-YOFF),uh=Math.max(.02,6.5-sh);
+ upper.scale.y=uh;upper.position.y=sh+uh/2;upperEdge.scale.y=uh;upperEdge.position.y=sh+uh/2;
+ slot.scale.y=Math.max(.02,sh);slot.position.y=sh/2;slotEdge.scale.y=Math.max(.02,sh);slotEdge.position.y=sh/2;
+ hatchTex.repeat.set(8.3/1.1,uh/1.1);
+}
+
+// production, sandbox
+const platGeo=new THREE.BoxGeometry(7,.3,9);
+const plat=new THREE.Mesh(platGeo,M.plat);plat.position.set(8.2,.15,0);scene.add(plat);edgesOf(platGeo,M.platLine,plat.position);
+const sbGeo=new THREE.BoxGeometry(4,2.4,3.4);
+const sbFill=new THREE.Mesh(sbGeo,M.sandFill);sbFill.position.set(3.6,1.2,-6.6);scene.add(sbFill);edgesOf(sbGeo,M.sandLine,sbFill.position);
+
+// drift monitor
+const ring=new THREE.Mesh(new THREE.TorusGeometry(1.1,.05,10,64),M.ring);ring.position.set(0,8.4,0);ring.rotation.x=Math.PI/2;scene.add(ring);
+
+// ledger tiles
+const COLS=24,ROWS=5,tiles=[];let tileN=0;
+const tileGeo=new THREE.BoxGeometry(.5,.08,.5);
+for(let i=0;i<COLS*ROWS;i++){const m=new THREE.Mesh(tileGeo,M.tOk);const r=Math.floor(i/COLS),c=i%COLS;m.position.set(-7.4+c*.64,.05,6.2+r*.64);m.visible=false;scene.add(m);tiles.push({m:m,g:1})}
+function ledger(kind){const t=tiles[tileN%tiles.length];tileN++;t.m.material=kind==='harm'?M.tHarm:kind==='sand'?M.tSand:kind==='blk'?M.tBlk:M.tOk;t.m.visible=true;t.g=0;t.m.scale.set(.01,.01,.01)}
+
+// effects: thin rings only
+const ringGeo=new THREE.RingGeometry(.28,.31,48);
+const fx=[],orbs=[];
+function ripple(pos,col,o){o=o||{};
+ const mm=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.85,side:THREE.DoubleSide,depthWrite:false});
+ const m=new THREE.Mesh(ringGeo,mm);m.position.copy(pos);
+ if(o.vertical)m.rotation.y=Math.PI/2;else m.rotation.x=-Math.PI/2;
+ scene.add(m);fx.push({m:m,t:0,dur:o.dur||.9,size:o.size||2.5});
+}
+const gSafe=new THREE.BoxGeometry(.42,.42,.42),gBad=new THREE.OctahedronGeometry(.4);
+const eSafe=new THREE.EdgesGeometry(gSafe),eBad=new THREE.EdgesGeometry(gBad);
+
+/* feed + trace + hud */
+const feed=$('#t3Feed'),trace=$('#t3Trace');
+function log(txt,force){const now=performance.now();if(!force&&now-lastFeed<700)return;lastFeed=now;
+ const li=document.createElement('li');li.textContent=txt;feed.insertBefore(li,feed.firstChild);while(feed.children.length>5)feed.removeChild(feed.lastChild)}
+function traceRow(o,route,pi){
+ const tr=document.createElement('tr');
+ const viol=route==='production'&&o.unsafe;if(viol)tr.className='vi';
+ tr.innerHTML='<td class="mono">'+o.id+'</td><td class="num">'+o.r.toFixed(2)+'</td><td>'+(o.unsafe?'unsafe':'safe')+'</td><td>'+(route==='production'?'open':'closed')+'</td><td>'+route+(viol?' (violation)':'')+'</td><td class="num">'+pi.toFixed(2)+'</td>';
+ trace.insertBefore(tr,trace.firstChild);while(trace.children.length>8)trace.removeChild(trace.lastChild)}
+function hud(){
+ $('#t3Period').textContent=S.period;$('#t3Ok').textContent=S.ok;$('#t3Harm').textContent=S.harm;
+ $('#t3Stop').textContent=S.stop;$('#t3Blk').textContent=S.blk;$('#t3Sand').textContent=S.sand;
+ $('#t3W').textContent=S.eps>0?(1/S.eps).toFixed(1):'unbounded';
+ $('#t3LamO').textContent=S.lam.toFixed(2);$('#t3EpsO').textContent=S.eps.toFixed(2);
+ const st=$('#t3Status');
+ if(S.alarm){st.className='verdict no';st.textContent='Drift alarm. The environment changed while the old opening was still deployed. The monitor will reset the level at the end of this period.'}
+ else if(S.worldShift){st.className='verdict mid';st.textContent='Post-drift. The level was reset to the starting value and is being re-earned from fresh evidence.'}
+ else if(!S.gov){st.className='verdict mid';st.textContent='Open loop. No certificate, no ratchet and no reset. The opening stays wherever you set it, like a one-time grant.'}
+ else{st.className='verdict ok';st.textContent='Closed loop. The opening rises only when a period\'s evidence clears the safety limit.'}
+}
+
+/* simulation */
+function spawn(){
+ const r=S.risky?Math.pow(Math.random(),.55):Math.random();
+ let p=(.02+.5*r*r)*(S.risky?1.5:1)*(S.worldShift?2:1);p=clamp(p,0,.95);
+ const unsafe=Math.random()<p,y=YOFF+r*(H-YOFF),z=(Math.random()-.5)*7;
+ const m=new THREE.Mesh(unsafe?gBad:gSafe,unsafe?M.bad:M.safe);m.add(new THREE.LineSegments(unsafe?eBad:eSafe,M.edge));
+ m.position.set(-9.6,y,z);scene.add(m);S.pkt++;
+ orbs.push({m:m,st:'fly',t:0,r:r,y:y,z:z,unsafe:unsafe,x:-9.6,id:'pkt-'+String(S.pkt).padStart(4,'0')});
+}
+function tick(){S.pc++;if(S.pc>=40)endPeriod()}
+function endPeriod(){
+ S.period++;
+ ripple(new THREE.Vector3(0,3.4,0),C.blue,{vertical:true,size:3.2,dur:1.2});
+ const rate=S.pHarm/Math.max(1,S.pAllowed);
+ if(S.gov){
+  if(S.worldShift&&!S.handled){
+   S.handled=true;S.alarm=false;S.lam=LAM0;$('#t3Lam').value=S.lam;
+   log('Period '+S.period+': drift test fired. Level reset to λ = '+LAM0.toFixed(2)+'; re-earning from fresh data.',true);
+  }else if(S.shiftNext){
+   S.shiftNext=false;S.worldShift=true;S.handled=false;S.alarm=true;
+   log('Period '+S.period+': environment shifted. The old level stays deployed for one more period before the monitor can detect it.',true);
+  }else if(S.lam<.7&&S.pAllowed>=5&&rate<.035){
+   S.lam=Math.min(.7,+(S.lam+.1).toFixed(2));$('#t3Lam').value=S.lam;
+   ripple(new THREE.Vector3(0,YOFF+S.lam*(H-YOFF),0),C.green,{vertical:true,size:2.2,dur:1});
+   log('Period '+S.period+': violation rate '+(rate*100).toFixed(1)+'% of allowed, certificate clears. Ratchet to λ = '+S.lam.toFixed(2)+'.',true);
+  }else{
+   log('Period '+S.period+': violation rate '+(rate*100).toFixed(1)+'% of allowed, certificate does not clear. Hold at λ = '+S.lam.toFixed(2)+'.',true);
+  }
+ }else{
+  if(S.shiftNext){S.shiftNext=false;S.worldShift=true;S.alarm=false}
+  log('Period '+S.period+' ended. Open loop, level unchanged.',true);
+ }
+ S.pc=0;S.pAllowed=0;S.pHarm=0;applyPal();hud();
+}
+function decide(o){
+ const sh=YOFF+S.lam*(H-YOFF),R=o.y<sh,pi=(1-S.eps)*(R?1:0)+S.eps;
+ if(R){
+  o.st='pass';o.t=0;S.pAllowed++;if(o.unsafe){S.pHarm++;S.harm++}else S.ok++;
+  ledger(o.unsafe?'harm':'ok');traceRow(o,'production',pi);
+ }else if(Math.random()<S.eps){
+  o.st='sand';o.t=0;S.sand++;ledger('sand');traceRow(o,'sandbox',pi);
+  o.p0=new THREE.Vector3(-.5,o.y,o.z);o.pc=new THREE.Vector3(1.2,7,o.z*.4-3);o.p1=new THREE.Vector3(3.6+(Math.random()-.5)*2,1,-6.6+(Math.random()-.5)*1.6);
+  log(o.id+' denied by rule, drawn for exploration (p = ε). Executed in sandbox, outcome logged, weight up to 1/ε.');
+ }else{
+  o.st='block';o.t=0;if(o.unsafe)S.stop++;else S.blk++;ledger('blk');traceRow(o,'blocked',pi);
+  ripple(new THREE.Vector3(-.2,o.y,o.z),o.unsafe?C.red:C.ink2,{vertical:true,size:1.2,dur:.6});
+  log(o.unsafe?o.id+' unsafe, denied by rule, blocked. Correct stop.':o.id+' safe but denied by rule, blocked. This is the cost of caution.');
+ }
+ tick();
+}
+function stepOrbs(dt){
+ for(let i=orbs.length-1;i>=0;i--){const o=orbs[i],m=o.m;let done=false;
+  if(o.st==='fly'){o.t+=dt/1.7;o.x=-9.6+9.1*Math.min(o.t,1);m.position.x=o.x;if(o.t>=1)decide(o)}
+  else if(o.st==='pass'){o.t+=dt/1.5;const t=Math.min(o.t,1);m.position.x=-.5+8.7*t;m.position.y=o.y+(.55-o.y)*t*t;
+   if(o.t>=1){
+    const lp=new THREE.Vector3(8.2,.35,o.z);
+    if(o.unsafe){ripple(lp,C.red,{size:3,dur:1});log(o.id+' unsafe but allowed (rule could not see it). Violation: counts toward realized risk.',true)}
+    else ripple(lp,C.green,{size:1.6,dur:.8});
+    done=true}}
+  else if(o.st==='sand'){o.t+=dt/1.7;const t=Math.min(o.t,1),a=1-t;
+   m.position.set(a*a*o.p0.x+2*a*t*o.pc.x+t*t*o.p1.x,a*a*o.p0.y+2*a*t*o.pc.y+t*t*o.p1.y,a*a*o.p0.z+2*a*t*o.pc.z+t*t*o.p1.z);
+   if(o.t>=1){ripple(new THREE.Vector3(o.p1.x,.08,o.p1.z),C.orange,{size:1.8,dur:.9});done=true}}
+  else if(o.st==='block'){o.t+=dt/.8;m.position.x-=dt*2.4;m.position.y=Math.max(.3,m.position.y-dt*4);m.scale.setScalar(Math.max(.01,1-o.t));if(o.t>=1)done=true}
+  m.rotation.y+=dt*1.2;
+  if(done){scene.remove(m);orbs.splice(i,1)}}
+}
+function stepFx(dt){
+ for(let i=fx.length-1;i>=0;i--){const f=fx[i];f.t+=dt;const p=f.t/f.dur;
+  f.m.scale.setScalar(1+p*f.size*3);f.m.material.opacity=.85*Math.max(0,1-p);
+  if(p>=1){scene.remove(f.m);f.m.material.dispose();fx.splice(i,1)}}
+ tiles.forEach(t=>{if(t.g<1){t.g=Math.min(1,t.g+dt*4);const s=Math.max(.01,t.g);t.m.scale.set(s,s,s)}});
+}
+
+/* camera and labels */
+let az=.26,el=.5,Rv=22,drag=null,timeS=0;
+const target=new THREE.Vector3(.8,2.3,0);
+function resize(){const w=wrap.clientWidth,h=wrap.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();Rv=24*clamp(1.6/camera.aspect,1,2.4)}
+new ResizeObserver(resize).observe(wrap);resize();
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,az:az,el:el};try{canvas.setPointerCapture(e.pointerId)}catch(_){}});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;az=drag.az-(e.clientX-drag.x)*.006;el=clamp(drag.el+(e.clientY-drag.y)*.004,.12,1.15)});
+['pointerup','pointercancel'].forEach(n=>canvas.addEventListener(n,()=>{drag=null}));
+const labDefs=[
+ ['Agent (request source)',-10.2,6.8,0],
+ ['r = 1',-11.4,H+.35,-4.6],['r = 0',-11.4,YOFF-.25,-4.6],
+ ['Policy gate, rule R_λ',0,7.3,0,function(){return 'Policy gate · λ = '+S.lam.toFixed(2)}],
+ ['Drift monitor',0,9.9,0],
+ ['Production (real effect)',8.2,2.4,3.4],
+ ['Sandbox (no real effect)',3.6,3.3,-6.6],
+ ['Evidence ledger (append-only)',0,.2,10],
+ ['request flow',-.5,.4,5]
+];
+const labBox=$('#t3Labels');
+const labs=labDefs.map(d=>{const e=document.createElement('div');e.className='lab';e.textContent=d[0];labBox.appendChild(e);return{e:e,v:new THREE.Vector3(d[1],d[2],d[3]),fn:d[4]||null,txt:d[0]}});
+function placeCam(){
+ const sway=reduced||drag?0:.1*Math.sin(timeS*.3),a=az+sway;
+ camera.position.set(target.x+Rv*Math.cos(el)*Math.sin(a),target.y+Rv*Math.sin(el),target.z+Rv*Math.cos(el)*Math.cos(a));
+ camera.lookAt(target);camera.updateMatrixWorld();
+}
+function placeLabels(){const w=wrap.clientWidth,h=wrap.clientHeight;
+ labs.forEach(l=>{if(l.fn){const t=l.fn();if(t!==l.txt){l.txt=t;l.e.textContent=t}}
+  const v=l.v.clone().project(camera);if(v.z>1){l.e.style.display='none';return}l.e.style.display='';
+  l.e.style.left=((v.x*.5+.5)*w)+'px';l.e.style.top=((-v.y*.5+.5)*h)+'px'})}
+
+/* loop */
+let vis=false,last=performance.now(),acc=0;
+function render(){updateGate();placeCam();renderer.render(scene,camera);placeLabels()}
+function frame(now){requestAnimationFrame(frame);const dt=Math.min(.05,(now-last)/1000);last=now;if(!vis)return;
+ timeS+=dt;
+ if(S.auto){acc+=dt;while(acc>.4){acc-=.4;spawn()}}
+ stepOrbs(dt);stepFx(dt);
+ S.lamV+=(S.lam-S.lamV)*Math.min(1,dt*5);
+ ring.rotation.z+=dt*(S.alarm?2.6:.7);
+ render()}
+new IntersectionObserver(e=>{vis=e[0].isIntersecting;if(vis){resize();render()}}).observe(wrap);
+
+/* controls */
+function setAuto(v){S.auto=v;$('#t3Auto').textContent=v?'Pause':'Play'}
+$('#t3Auto').onclick=()=>setAuto(!S.auto);
+$('#t3Burst').onclick=()=>{for(let i=0;i<20;i++)setTimeout(spawn,i*130)};
+$('#t3Drift').onclick=()=>{if(S.shiftNext||S.worldShift&&!S.handled)return;
+ if(S.worldShift&&S.handled){S.worldShift=false;S.handled=true}
+ S.shiftNext=true;applyPal();log('Drift scheduled for the next period boundary. Watch the violation counter.',true);
+ $('#t3Status').className='verdict mid';$('#t3Status').textContent='Drift scheduled for the next period boundary.'};
+$('#t3Reset').onclick=()=>{orbs.splice(0).forEach(o=>scene.remove(o.m));
+ Object.assign(S,{lam:LAM0,lamV:LAM0,worldShift:false,shiftNext:false,handled:true,alarm:false,period:0,pc:0,pAllowed:0,pHarm:0,ok:0,harm:0,stop:0,blk:0,sand:0,pkt:0});
+ tiles.forEach(t=>{t.m.visible=false});tileN=0;feed.innerHTML='';trace.innerHTML='';$('#t3Lam').value=LAM0;applyPal();hud()};
+function setRisky(v){S.risky=v;$('#t3Calm').setAttribute('aria-pressed',!v);$('#t3Risky').setAttribute('aria-pressed',v);
+ log(v?'Agent risk profile raised: more requests are high-rank.':'Agent risk profile back to baseline.',true)}
+$('#t3Calm').onclick=()=>setRisky(false);$('#t3Risky').onclick=()=>setRisky(true);
+$('#t3Lam').oninput=e=>{S.lam=+e.target.value;hud()};
+$('#t3Eps').oninput=e=>{S.eps=+e.target.value;hud()};
+$('#t3Gov').onchange=e=>{S.gov=e.target.checked;hud()};
+setAuto(S.auto);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyPal);
+new MutationObserver(applyPal).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-look']});
+applyPal();hud();updateGate();render();
+requestAnimationFrame(frame);
+})();
+</script>
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s);
+if(!$('#xBody'))return;
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+/* environment parameters: EnvParams defaults and DRIFTED, homeostat/env/agent.py */
+const BASE={mix:[['routine_lookup',.5],['refund_request',.2],['bulk_update',.15],['sensitive_export',.15]],noise:.12,mutL:.05,mutB:.7,rMu:4.5,rSig:1,ext:.45,pii:.4,prot:.25};
+const DRIFT=Object.assign({},BASE,{mix:[['routine_lookup',.3],['refund_request',.15],['bulk_update',.25],['sensitive_export',.3]],noise:.2,rMu:5.2});
+const gauss=r=>{let u=0;while(u===0)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r())};
+const rint=(r,a,b)=>a+Math.floor(r()*(b-a));
+function sample(P,r){
+ let u=r(),task=P.mix[P.mix.length-1][0],acc=0;
+ for(const m of P.mix){acc+=m[1];if(u<acc){task=m[0];break}}
+ const noisy=f=>r()<P.noise?!f:f;let a;
+ if(task==='routine_lookup'){const m=r()<P.mutL;a={tool:'db_query',tokens:rint(r,50,400),rows:rint(r,1,200),true_mutating:m,obs_mutating:noisy(m)}}
+ else if(task==='refund_request'){a={tool:'refund',amount:Math.round(Math.exp(P.rMu+P.rSig*gauss(r))*100)/100}}
+ else if(task==='bulk_update'){
+  if(r()<.6){const m=r()<P.mutB;a={tool:'db_query',tokens:rint(r,200,1500),rows:rint(r,50,2000),true_mutating:m,obs_mutating:noisy(m)}}
+  else{const pr=r()<P.prot;a={tool:'delete_record',record_id:rint(r,1,10000),true_protected:pr,obs_protected:noisy(pr)}}}
+ else{if(r()<.8){const pii=r()<P.pii;a={tool:'send_email',external:r()<P.ext,true_pii:pii,obs_pii:noisy(pii)}}else a={tool:'escalate'}}
+ return {task:task,a:a};
+}
+/* tools.py, oracle.py, policy/spec.py */
+function cost(a){switch(a.tool){case'db_query':return .002*a.tokens/100+.0001*a.rows;case'refund':return .05;case'send_email':return .01;case'delete_record':return .02;default:return .001}}
+function unsafe(a){switch(a.tool){case'db_query':return a.true_mutating;case'refund':return a.amount>500;case'send_email':return a.external&&a.true_pii;case'delete_record':return a.true_protected;default:return false}}
+const $f=(x,d)=>x.toFixed(d==null?3:d);
+function rule(l,a){
+ const c=cost(a),ceil=.05+.95*l;
+ if(c>ceil)return{allow:false,why:'estimated cost $'+$f(c)+' exceeds the per-request ceiling $'+$f(ceil)+' at λ = '+$f(l,2)};
+ switch(a.tool){
+  case'escalate':return{allow:true,why:'escalation is always allowed'};
+  case'db_query':{const need=a.obs_mutating?.6:0;
+   return l>=need-1e-9?{allow:true,why:(a.obs_mutating?'detector reads it as mutating, unlocked at λ ≥ 0.60':'detector reads it as read-only, unlocked at λ ≥ 0.00')+', and cost is under the ceiling'}
+    :{allow:false,why:'detector reads it as mutating, which needs λ ≥ 0.60'}}
+  case'refund':{const cap=50+1950*l;
+   if(l<.2-1e-9)return{allow:false,why:'refunds unlock at λ ≥ 0.20'};
+   return a.amount<=cap?{allow:true,why:'amount $'+$f(a.amount,2)+' is within the refund cap $'+$f(cap,2)+' at this λ'}:{allow:false,why:'amount $'+$f(a.amount,2)+' exceeds the refund cap $'+$f(cap,2)}}
+  case'send_email':
+   if(l<.4-1e-9)return{allow:false,why:'email unlocks at λ ≥ 0.40'};
+   return(a.external&&a.obs_pii)?{allow:false,why:'detector flags an external recipient together with PII'}:{allow:true,why:'detector does not flag external plus PII'};
+  case'delete_record':
+   if(l<.8-1e-9)return{allow:false,why:'deletion unlocks at λ ≥ 0.80'};
+   return a.obs_protected?{allow:false,why:'detector flags the record as protected'}:{allow:true,why:'detector does not flag the record as protected'};
+ }
+}
+/* bounds.py */
+function hoeff(z,d,W){const n=z.length;return mean(z)+W*Math.sqrt(Math.log(1/d)/(2*n))}
+function bern(z,d,W){const n=z.length;if(n<2)return Infinity;const m=mean(z);let v=0;for(const x of z)v+=(x-m)*(x-m);v/=(n-1);const lt=Math.log(2/d);return m+Math.sqrt(2*v*lt/n)+7*W*lt/(3*(n-1))}
+function wsr(z,d,W){
+ const n=z.length;if(n<2)return Infinity;
+ const x=new Float64Array(n);for(let i=0;i<n;i++)x[i]=z[i]/W;
+ const lamB=new Float64Array(n);let cs=0,cq=0,prev=.25;
+ for(let t=0;t<n;t++){lamB[t]=Math.sqrt(2*Math.log(1/d)/(n*prev));cs+=x[t];const mu=(.5+cs)/(t+2);cq+=(x[t]-mu)*(x[t]-mu);prev=(.25+cq)/(t+2)}
+ const G=500,ms=[0];for(let i=0;i<G;i++)ms.push(Math.pow(10,-5+5*i/(G-1)));
+ const th=Math.log(1/d);let last=-1;
+ for(let j=0;j<ms.length;j++){const m=ms[j],cap=.9/Math.max(1-m,1e-12);let lw=0,mx=-Infinity,rej=false;
+  for(let t=0;t<n;t++){const l=Math.min(lamB[t],cap);lw+=Math.log1p(l*(m-x[t]));if(lw>mx)mx=lw;if(mx>=th){rej=true;break}}
+  if(!rej)last=j}
+ if(last<0)return W*ms[1];
+ return W*ms[Math.min(last+1,ms.length-1)];
+}
+const mean=z=>{let s=0;for(const x of z)s+=x;return s/z.length};
+const UCB={hoeffding:hoeff,bernstein:bern,wsr:wsr};
+
+const E={lam:.4,cand:.55,eps:.15,n:2000,drift:false,seed:1,bound:'wsr',filter:'all',shown:120,sel:0};
+let ev=[],view=[];
+const K=2,L=11,T=15,DELTA=.05,dT=DELTA/(K*L*T),ALPHA={safety:.05,cost:.15};
+function gen(){
+ const P=E.drift?DRIFT:BASE,r=mulberry(E.seed*7919+13);ev=[];
+ for(let i=0;i<E.n;i++){const s=sample(P,r),R=rule(E.lam,s.a),p=(1-E.eps)*(R.allow?1:0)+E.eps,u=r();
+  const out=u>=p?'blocked':(R.allow?'allowed':'sandboxed'),ex=out!=='blocked',c=cost(s.a),uns=unsafe(s.a);
+  ev.push({i:i+1,task:s.task,a:s.a,R:R,p:p,u:u,out:out,ex:ex,c:c,uns:uns,ls:ex&&uns?1:0,lc:ex?Math.min(1,c/.5):0});}
+ weights();
+}
+function weights(){
+ const W=E.eps>0?1/E.eps:1;
+ for(const e of ev){const Rc=rule(E.cand,e.a);e.Rc=Rc;e.pc=(1-E.eps)*(Rc.allow?1:0)+E.eps;e.w=e.ex?clamp(e.pc/e.p,0,W):0;e.zs=e.w*e.ls;e.zc=e.w*e.lc}
+}
+const viol=e=>e.out==='allowed'&&e.uns;
+function short(e){const a=e.a;switch(a.tool){
+ case'db_query':return'db_query · '+(a.true_mutating?'mutating':'read')+' · '+a.rows+' rows';
+ case'refund':return'refund · $'+$f(a.amount,2);
+ case'send_email':return'send_email · '+(a.external?'external':'internal')+(a.true_pii?', PII':'');
+ case'delete_record':return'delete_record · #'+a.record_id+(a.true_protected?' (protected)':'');
+ default:return'escalate'}}
+const OUT={allowed:'<span class="pill g">allowed</span>',sandboxed:'<span class="pill o">sandboxed</span>',blocked:'<span class="pill">blocked</span>'};
+function renderStats(){
+ const c={allowed:0,sandboxed:0,blocked:0};let v=0,su=0;
+ for(const e of ev){c[e.out]++;if(viol(e))v++;if(e.out==='sandboxed'&&e.uns)su++}
+ let sw=0,sw2=0;for(const e of ev){sw+=e.w;sw2+=e.w*e.w}
+ const ess=sw2>0?sw*sw/sw2:0;E.ess=ess;
+ const t=(b,l,cls)=>'<div class="stat"><b'+(cls?' style="color:var(--'+cls+')"':'')+'>'+b+'</b><span>'+l+'</span></div>';
+ $('#xStats').innerHTML=t(c.allowed,'allowed')+t(c.sandboxed,'sandboxed')+t(c.blocked,'blocked')+t(v,'real violations (allowed and unsafe)','red')+t(su,'unsafe among sandboxed (no real harm)','orange')+t(Math.round(ess),'ESS at λ′ (floor '+Math.round(.1*E.n)+')');
+}
+function filtered(){return ev.filter(e=>E.filter==='all'||(E.filter==='violation'?viol(e):e.out===E.filter))}
+function renderTable(){
+ view=filtered();const rows=view.slice(0,E.shown);
+ $('#xBody').innerHTML=rows.map(e=>{
+  const truth=e.ex||true?(e.uns?'<span class="pill r">unsafe</span>':'<span class="pill b">safe</span>'):'';
+  return'<tr data-i="'+(e.i-1)+'" class="'+(E.sel===e.i-1?'sel':'')+(viol(e)?' vi':'')+'"><td class="num">'+e.i+'</td><td>'+short(e)+'</td><td>'+(e.R.allow?'1':'0')+'</td><td class="num">'+$f(e.p,2)+'</td><td>'+OUT[e.out]+'</td><td>'+truth+'</td><td class="num">'+(e.ex?$f(e.w,2):'0')+'</td></tr>'}).join('');
+ $('#xCount').textContent='Showing '+rows.length+' of '+view.length+' matching records';
+ $('#xMore').hidden=rows.length>=view.length;
+}
+function describe(e){
+ const a=e.a,P=[];
+ const flags=a.tool==='db_query'?'obs_mutating = '+a.obs_mutating+' (true: '+a.true_mutating+')':a.tool==='send_email'?'obs_pii = '+a.obs_pii+' (true: '+a.true_pii+'), external = '+a.external:a.tool==='delete_record'?'obs_protected = '+a.obs_protected+' (true: '+a.true_protected+')':a.tool==='refund'?'amount = $'+$f(a.amount,2):'no flags';
+ P.push('<strong>Proposal.</strong> In a <code>'+e.task+'</code> task the agent proposed <code>'+short(e)+'</code> with estimated cost $'+$f(e.c)+'. The policy sees: '+flags+'.');
+ let truth;
+ if(e.uns){truth=a.tool==='db_query'?'the query truly mutates data':a.tool==='refund'?'the amount is above the $500 human-approval threshold':a.tool==='send_email'?'the email is external and truly contains PII':'the record is truly protected';
+  P.push('<strong>Ground truth</strong> (hidden from the policy): <span class="pill r">unsafe</span> because '+truth+'.')}
+ else P.push('<strong>Ground truth</strong> (hidden from the policy): <span class="pill b">safe</span>.');
+ P.push('<strong>Rule R<sub>λ</sub> at λ = '+$f(E.lam,2)+'.</strong> '+(e.R.allow?'Allow':'Deny')+': '+e.R.why+'.');
+ const form='π<sub>safe</sub> = (1 − ε)·'+(e.R.allow?'1':'0')+' + ε = '+$f(e.p,3);
+ if(e.out==='allowed'){
+  P.push('<strong>Routing.</strong> '+form+', so this action is always allowed. It executed in production with a real effect. Loss recorded: ℓ<sub>safety</sub> = '+(e.ls)+', ℓ<sub>cost</sub> = '+$f(e.lc)+'.');
+  if(e.uns){let m='This is a <strong>real policy violation</strong> and counts toward the realized risk.';
+   if(a.tool==='refund')m+=' The rule\'s refund cap at this λ is $'+$f(50+1950*E.lam,2)+', and any cap above $500 lets some oracle-unsafe refunds through. That is residual risk the rule structure leaves, which the certificate must keep under α.';
+   else{const k=a.tool==='db_query'?a.obs_mutating!==a.true_mutating:a.tool==='send_email'?a.obs_pii!==a.true_pii:a.obs_protected!==a.true_protected;
+    m+=k?' The detector\'s flag was wrong here (a false negative), so the rule could not see the problem.':' The rule allowed it at this λ even though the flag was read correctly.'}
+   P.push(m)}
+ }else if(e.out==='sandboxed'){
+  P.push('<strong>Routing.</strong> The rule denied it, so '+form+' = ε. The draw u = '+$f(e.u,3)+' fell below ε, so it was executed <em>in the sandbox</em>: the outcome is observed, with no real effect. Loss observed: ℓ<sub>safety</sub> = '+e.ls+', ℓ<sub>cost</sub> = '+$f(e.lc)+'.');
+  P.push('This record is evidence about a region the deployed rule normally blocks. It is how the system learns what a more permissive λ′ would have done.')
+ }else{
+  P.push('<strong>Routing.</strong> The rule denied it, so '+form+' = ε. The draw u = '+$f(e.u,3)+' was at least ε, so it was <em>blocked</em> and never executed. Both losses are recorded as 0, which is known immediately.');
+  P.push('A blocked record says nothing about what would have happened. '+(e.uns?'This one would have been unsafe, and blocking it is the gate doing its job.':'This one would have been safe, so caution cost a good action.'))}
+ const W=E.eps>0?1/E.eps:1;
+ if(e.ex){P.push('<strong>Contribution at candidate λ′ = '+$f(E.cand,2)+'.</strong> R<sub>λ′</sub> = '+(e.Rc.allow?'1':'0')+', π<sub>λ′</sub> = '+$f(e.pc,3)+', w = π<sub>λ′</sub> / π<sub>safe</sub> = '+$f(e.w,3)+(e.w>=W-1e-9&&E.eps>0?' (at the cap 1/ε)':'')+'. So z<sub>safety</sub> = w·ℓ<sub>safety</sub> = '+$f(e.zs,3)+' and z<sub>cost</sub> = '+$f(e.zc,3)+'.'+(e.w>1.0001?' The candidate would allow this action more often than the deployed policy did, so this record stands in for about '+$f(e.w,1)+' similar requests.':e.w<.9999?' The candidate would allow it less often, so it is down-weighted.':''))}
+ else P.push('<strong>Contribution at candidate λ′ = '+$f(E.cand,2)+'.</strong> Not executed, so w = 0 and it adds nothing to either estimate.');
+ return P.map(p=>'<p>'+p+'</p>').join('');
+}
+function renderDetail(){const e=ev[E.sel];if(!e){$('#xDetail').innerHTML='';return}
+ $('#xDetail').innerHTML='<div class="mono" style="color:var(--ink2);font-size:.78rem;margin-bottom:8px">RECORD #'+e.i+' · '+(viol(e)?'VIOLATION':e.out.toUpperCase())+'</div>'+describe(e)}
+let certTimer=null;
+function renderCert(){
+ const W=E.eps>0?1/E.eps:1,zs=ev.map(e=>e.zs),zc=ev.map(e=>e.zc),f=UCB[E.bound];
+ const floor=E.bound==='hoeffding'?W*Math.sqrt(Math.log(1/dT)/(2*E.n)):E.bound==='bernstein'?7*W*Math.log(2/dT)/(3*(E.n-1)):W*Math.log(1/dT)/(.9*E.n);
+ const rows=[['safety',zs],['cost',zc]].map(r=>{const k=r[0],est=mean(r[1]),u=f(r[1],dT,W);return{k:k,est:est,u:u,ok:u<=ALPHA[k]}});
+ $('#xCert').innerHTML=rows.map(r=>'<tr><td>'+r.k+'</td><td class="num">'+ALPHA[r.k]+'</td><td class="num">'+$f(r.est,4)+'</td><td class="num">'+(isFinite(r.u)?$f(r.u,4):'∞')+'</td><td class="num">'+$f(floor,4)+(E.bound==='wsr'?' (approx.)':'')+'</td><td>'+(r.ok?'<span class="pill g">yes</span>':'<span class="pill r">no</span>')+'</td></tr>').join('');
+ const essOk=E.ess>=.1*E.n,all=rows.every(r=>r.ok)&&essOk,v=$('#xVerdict');
+ const binding=rows.filter(r=>!r.ok).map(r=>r.k).concat(essOk?[]:['ESS floor']);
+ if(all){v.className='verdict ok';v.textContent='λ′ = '+$f(E.cand,2)+' would be certified from this period alone: every bound clears its tolerance and ESS is above the floor.'}
+ else{v.className='verdict no';v.textContent='λ′ = '+$f(E.cand,2)+' is not certified. Binding: '+binding.join(', ')+'.'}
+ const stray=E.cand>E.lam+.15+1e-9;
+ $('#xCertNote').textContent='δ per test = 0.05 / (2·11·15) = '+dT.toExponential(2)+', W_max = '+$f(W,2)+'. '+(stray?'λ′ is more than 0.15 above the deployed level, so the real loop would not evaluate it in one period (step_max = 0.15); weight concentration usually collapses ESS here. ':'')+'The real loop tests every grid point from the deployed λ up to λ′ and needs all of them to pass; this panel tests the single point λ′.';
+}
+function all(){weights();renderStats();renderTable();renderDetail();renderCert()}
+function regen(){gen();const first=ev.findIndex(viol);E.sel=first>=0?first:0;E.shown=120;all()}
+const bind=(id,key,out,fmt,reg)=>{$('#'+id).oninput=ev2=>{E[key]=+ev2.target.value;$('#'+out).textContent=fmt(E[key]);if(reg)regen();else{weights();renderStats();renderTable();renderDetail();renderCert()}}};
+bind('xLam','lam','xLamO',v=>v.toFixed(2),true);
+bind('xCand','cand','xCandO',v=>v.toFixed(2),false);
+bind('xEps','eps','xEpsO',v=>v.toFixed(2),true);
+bind('xN','n','xNO',v=>String(v),true);
+$('#xBound').onchange=e=>{E.bound=e.target.value;renderCert()};
+$('#xDrift').onchange=e=>{E.drift=e.target.checked;regen()};
+$('#xSeed').onclick=()=>{E.seed++;regen()};
+$('#xMore').onclick=()=>{E.shown+=120;renderTable()};
+Array.prototype.forEach.call(document.querySelectorAll('#xFilter button'),b=>{b.onclick=()=>{E.filter=b.dataset.f;Array.prototype.forEach.call(document.querySelectorAll('#xFilter button'),x=>x.setAttribute('aria-pressed',x===b));E.shown=120;renderTable()}});
+$('#xBody').onclick=e=>{const tr=e.target.closest('tr');if(!tr)return;E.sel=+tr.dataset.i;renderTable();renderDetail()};
+regen();
+})();
+</script>
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s);
+if(!$('#dmEvents'))return;
+function mulberry(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const f3=(x,d)=>x.toFixed(d==null?3:d);
+function cost(a){switch(a.tool){case'db_query':return .002*a.tokens/100+.0001*a.rows;case'refund':return .05;case'send_email':return .01;case'delete_record':return .02;default:return .001}}
+function unsafe(a){switch(a.tool){case'db_query':return a.true_mutating;case'refund':return a.amount>500;case'send_email':return a.external&&a.true_pii;case'delete_record':return a.true_protected;default:return false}}
+function rule(l,a){
+ const c=cost(a),ceil=.05+.95*l;
+ if(c>ceil)return{allow:false,why:'estimated cost $'+f3(c)+' is above the per-request ceiling $'+f3(ceil)+' at λ = '+f3(l,2)};
+ switch(a.tool){
+  case'escalate':return{allow:true,why:'escalation to a human is always allowed'};
+  case'db_query':{const need=a.obs_mutating?.6:0;
+   return l>=need-1e-9?{allow:true,why:(a.obs_mutating?'the detector reads it as a write, and writes unlock at λ ≥ 0.60':'the detector reads it as read-only, which is allowed at any λ')}
+    :{allow:false,why:'the detector reads it as a write, and writes unlock only at λ ≥ 0.60'}}
+  case'refund':{const cap=50+1950*l;
+   if(l<.2-1e-9)return{allow:false,why:'refunds unlock at λ ≥ 0.20'};
+   return a.amount<=cap?{allow:true,why:'$'+f3(a.amount,2)+' is within the refund cap of $'+f3(cap,2)+' at this λ'}:{allow:false,why:'$'+f3(a.amount,2)+' is above the refund cap of $'+f3(cap,2)+' at this λ'}}
+  case'send_email':
+   if(l<.4-1e-9)return{allow:false,why:'email unlocks at λ ≥ 0.40'};
+   return(a.external&&a.obs_pii)?{allow:false,why:'the detector flags an external recipient together with PII'}:{allow:true,why:'the detector does not flag external recipient plus PII'};
+  case'delete_record':
+   if(l<.8-1e-9)return{allow:false,why:'deletion unlocks at λ ≥ 0.80'};
+   return a.obs_protected?{allow:false,why:'the detector flags the record as protected'}:{allow:true,why:'the detector does not flag the record as protected'};
+ }
+}
+const EV=[
+ {id:'e1',label:"Look up a customer's order history",tag:'db_query',task:'routine_lookup',a:{tool:'db_query',tokens:120,rows:20,true_mutating:false,obs_mutating:false}},
+ {id:'e2',label:'Refund $35 for a damaged item',tag:'refund',task:'refund_request',a:{tool:'refund',amount:35}},
+ {id:'e3',label:'Refund $480 for a late delivery',tag:'refund',task:'refund_request',a:{tool:'refund',amount:480}},
+ {id:'e4',label:'Refund $1,200 after a duplicate-charge claim',tag:'refund',task:'refund_request',a:{tool:'refund',amount:1200}},
+ {id:'e5',label:'Email an order receipt to the customer',tag:'send_email',task:'sensitive_export',a:{tool:'send_email',external:true,true_pii:false,obs_pii:false}},
+ {id:'e6',label:'Email a customer list to an outside partner (detector sees the PII)',tag:'send_email',task:'sensitive_export',a:{tool:'send_email',external:true,true_pii:true,obs_pii:true}},
+ {id:'e7',label:'Email a report to an outside partner (detector misses the PII)',tag:'send_email',task:'sensitive_export',a:{tool:'send_email',external:true,true_pii:true,obs_pii:false}},
+ {id:'e8',label:'Run an UPDATE to fix addresses (detector sees the write)',tag:'db_query',task:'bulk_update',a:{tool:'db_query',tokens:300,rows:400,true_mutating:true,obs_mutating:true}},
+ {id:'e9',label:'Run a query that looks read-only but modifies data (detector misses it)',tag:'db_query',task:'bulk_update',a:{tool:'db_query',tokens:250,rows:300,true_mutating:true,obs_mutating:false}},
+ {id:'e10',label:'Delete a protected customer record (detector sees it)',tag:'delete_record',task:'bulk_update',a:{tool:'delete_record',record_id:4412,true_protected:true,obs_protected:true}},
+ {id:'e11',label:'Delete an old test record',tag:'delete_record',task:'bulk_update',a:{tool:'delete_record',record_id:9087,true_protected:false,obs_protected:false}},
+ {id:'e12',label:'Delete a protected record (detector misses it)',tag:'delete_record',task:'bulk_update',a:{tool:'delete_record',record_id:2231,true_protected:true,obs_protected:false}},
+ {id:'e13',label:'Escalate an unusual request to a human',tag:'escalate',task:'sensitive_export',a:{tool:'escalate'}},
+ {id:'e14',label:'Run a large report: 2,000 rows, 1,500 tokens',tag:'db_query',task:'bulk_update',a:{tool:'db_query',tokens:1500,rows:2000,true_mutating:false,obs_mutating:false}}
+];
+const POL=[
+ {id:'p0',name:'Starter floor',lam:.05,desc:'Where Kairos starts, and where it returns after drift.'},
+ {id:'p1',name:'Cautious',lam:.2,desc:'Refunds unlock. Little else.'},
+ {id:'p2',name:'Moderate',lam:.4,desc:'Email unlocks, refund cap near $830.'},
+ {id:'p3',name:'Permissive',lam:.7,desc:'Writes unlock, refund cap near $1,400.'},
+ {id:'p4',name:'Fully open',lam:.95,desc:'Roughly a one-time "trust it" grant.'}
+];
+const D={sel:new Set(['e1','e3','e4','e7','e9','e11','e13','e14']),pol:'p2',eps:.15,seed:1,row:null};
+const TYPICAL=['e1','e3','e4','e7','e9','e11','e13','e14'];
+function short(e){const a=e.a;return e.label}
+function truthWhy(e){const a=e.a;
+ if(!unsafe(a))return'safe';
+ return a.tool==='db_query'?'the query really modifies data':a.tool==='refund'?'the amount is above the $500 human-approval threshold':a.tool==='send_email'?'the email goes outside and really contains PII':'the record really is protected'}
+function flagsText(e){const a=e.a;return a.tool==='db_query'?'detector says write = '+a.obs_mutating+', truth = '+a.true_mutating:a.tool==='send_email'?'detector says PII = '+a.obs_pii+', truth = '+a.true_pii+', external = '+a.external:a.tool==='delete_record'?'detector says protected = '+a.obs_protected+', truth = '+a.true_protected:a.tool==='refund'?'amount = $'+f3(a.amount,2):'no flags'}
+function renderEvents(){
+ $('#dmEvents').innerHTML=EV.map(e=>'<label class="evc'+(D.sel.has(e.id)?' on':'')+'"><input type="checkbox" data-id="'+e.id+'"'+(D.sel.has(e.id)?' checked':'')+'><span><strong>'+e.label+'</strong><small>'+e.tag+' · '+flagsText(e)+'</small></span></label>').join('');
+ $('#dmEvCount').textContent=D.sel.size+' of '+EV.length+' selected';
+}
+function renderPolicies(){
+ $('#dmPolicies').innerHTML=POL.map(p=>'<label class="polc'+(D.pol===p.id?' on':'')+'"><input type="radio" name="pol" value="'+p.id+'"'+(D.pol===p.id?' checked':'')+'><span><strong>'+p.name+'</strong><small>λ = '+p.lam.toFixed(2)+'</small><small>'+p.desc+'</small></span></label>').join('');
+}
+function compute(){
+ const lam=POL.find(p=>p.id===D.pol).lam,eps=D.eps;const out=[];
+ EV.forEach((e,idx)=>{if(!D.sel.has(e.id))return;
+  const R=rule(lam,e.a),p=(1-eps)*(R.allow?1:0)+eps;
+  const pA=R.allow?1:0,pS=R.allow?0:eps,pB=R.allow?0:1-eps;
+  const u=mulberry(D.seed*7919+idx*104729)();
+  const o=u>=p?'blocked':(R.allow?'allowed':'sandboxed'),uns=unsafe(e.a);
+  let as,cls;
+  if(o==='allowed'&&uns){as='Violation: unsafe action ran for real';cls='r'}
+  else if(o==='allowed'){as='Correct: safe action ran';cls='g'}
+  else if(o==='sandboxed'){as='Sandbox evidence: ran with no real effect';cls='o'}
+  else if(uns){as='Correct: unsafe action stopped';cls='g'}
+  else{as='False block: safe action stopped';cls=''}
+  out.push({e:e,R:R,p:p,pA:pA,pS:pS,pB:pB,u:u,o:o,uns:uns,as:as,cls:cls,lam:lam,eps:eps,idx:idx});
+ });
+ return out;
+}
+const OUTP={allowed:'<span class="pill g">allowed</span>',sandboxed:'<span class="pill o">sandboxed</span>',blocked:'<span class="pill">blocked</span>'};
+function render(){
+ const rs=compute(),pol=POL.find(p=>p.id===D.pol),n=rs.length;
+ if(!rs.length){$('#dmSummary').className='verdict mid';$('#dmSummary').textContent='Select at least one event in step 1.';$('#dmStats').innerHTML='';$('#dmBody').innerHTML='';$('#dmExplain').innerHTML='';$('#dmJson').textContent='';$('#dmAcross').innerHTML='';$('#dmNext').innerHTML='';return}
+ if(!rs.find(r=>r.e.id===D.row))D.row=(rs.find(r=>r.o==='allowed'&&r.uns)||rs[0]).e.id;
+ const c={allowed:0,sandboxed:0,blocked:0};let v=0,fb=0,ev=0;
+ rs.forEach(r=>{c[r.o]++;if(r.o==='allowed'&&r.uns)v++;if(r.o==='blocked'&&!r.uns)fb++;ev+=r.pA*(r.uns?1:0)});
+ const sm=$('#dmSummary');sm.className='verdict '+(v?'no':'ok');
+ sm.textContent='Policy "'+pol.name+'" (λ = '+f3(pol.lam,2)+'), sandbox '+(D.eps>0?'on':'off')+'. Of '+n+' events, '+c.allowed+' ran in production, '+c.sandboxed+' ran in the sandbox and '+c.blocked+' were blocked. '+(v?v+' unsafe '+(v>1?'events':'event')+' ran for real.':'No unsafe event ran for real in this draw.');
+ const t=(b,l,cls)=>'<div class="stat"><b'+(cls?' style="color:var(--'+cls+')"':'')+'>'+b+'</b><span>'+l+'</span></div>';
+ $('#dmStats').innerHTML=t(c.allowed,'allowed (real)')+t(c.sandboxed,'sandboxed')+t(c.blocked,'blocked')+t(v,'violations in this draw','red')+t(fb,'safe events blocked')+t(f3(ev,2),'expected violations (exact, from probabilities)');
+ $('#dmBody').innerHTML=rs.map(r=>'<tr data-id="'+r.e.id+'" class="'+(D.row===r.e.id?'sel':'')+(r.o==='allowed'&&r.uns?' vi':'')+'"><td>'+r.e.label+'</td><td>'+(r.R.allow?'allow':'deny')+'</td><td class="num">'+f3(r.pA,2)+'</td><td class="num">'+f3(r.pS,2)+'</td><td class="num">'+f3(r.pB,2)+'</td><td>'+OUTP[r.o]+'</td><td>'+(r.uns?'<span class="pill r">unsafe</span>':'<span class="pill b">safe</span>')+'</td><td>'+r.as+'</td></tr>').join('');
+ explain(rs.find(r=>r.e.id===D.row),rs);
+ next(rs);
+}
+function explain(r,rs){
+ const e=r.e,a=e.a,lam=r.lam,eps=r.eps,P=[];
+ P.push('<strong>What was asked.</strong> '+e.label+'. Details: '+flagsText(e)+'. Estimated cost $'+f3(cost(a))+'.');
+ P.push('<strong>What the policy could see.</strong> Only the observed flags and the parameters, never the ground truth. At λ = '+f3(lam,2)+' the rule says <em>'+(r.R.allow?'allow':'deny')+'</em> because '+r.R.why+'.');
+ const form='P(allowed) = (1 − ε)·'+(r.R.allow?'1':'0')+' + ε = '+f3(r.p,2);
+ if(r.o==='allowed')P.push('<strong>What happened.</strong> '+form+', so the request was always going to run. It was <em>executed in production</em> with a real effect.');
+ else if(r.o==='sandboxed')P.push('<strong>What happened.</strong> The rule denied it, so it had an ε = '+f3(eps,2)+' chance of being explored. The random draw u = '+f3(r.u,3)+' came in below ε, so it was <em>executed in the sandbox</em>: its outcome is observed, with no real effect.');
+ else P.push('<strong>What happened.</strong> '+(r.R.allow?'':'The rule denied it, so it was blocked with probability 1 − ε = '+f3(1-eps,2)+'. The draw u = '+f3(r.u,3)+' did not fall in the exploration share, so it was ')+'<em>blocked</em>: nothing was executed.'+(eps===0?' With the sandbox off, a denied request is always blocked.':''));
+ if(r.uns){P.push('<strong>Ground truth (revealed).</strong> This event is <span class="pill r">unsafe</span> because '+truthWhy(e)+'.');}
+ else P.push('<strong>Ground truth (revealed).</strong> This event is <span class="pill b">safe</span>.');
+ let why;
+ if(r.o==='allowed'&&r.uns){
+  const wrong=a.tool==='db_query'?a.obs_mutating!==a.true_mutating:a.tool==='send_email'?a.obs_pii!==a.true_pii:a.tool==='delete_record'?a.obs_protected!==a.true_protected:false;
+  why=wrong?'The detector made a mistake (a false negative), so the rule had no way to see the problem. This is residual risk. It cannot be removed by the rule alone, which is why Kairos measures it and keeps its rate under the limit.':a.tool==='refund'?'At this λ the refund cap is $'+f3(50+1950*lam,2)+', which is above the $500 approval threshold, so some unsafe refunds are inside what the rule allows. This is a limit of the rule, and it is the kind of risk the certificate has to account for before raising λ further.':'The rule allowed it at this λ even though the flag was read correctly. Raising λ is exactly what exposes this kind of risk.';
+ }else if(r.o==='allowed')why='Correct outcome. The rule and the truth agree, and this request is part of the autonomy the organization wants to give.';
+ else if(r.o==='sandboxed')why='This is evidence, not an action. The rule would normally block it, but running it in the sandbox shows what a higher λ would have done'+(r.uns?' (it would have been unsafe)':' (it would have been safe)')+'. In the risk estimate it counts 1/ε = '+f3(1/eps,1)+' times.';
+ else if(r.uns)why='Correct outcome. The gate stopped an unsafe request.';
+ else why='A safe request was stopped. This is the price of caution at a low λ, and the reason autonomy should rise when the evidence allows it.';
+ P.push('<strong>Why it came out this way.</strong> '+why);
+ $('#dmExplain').innerHTML='<div class="mono" style="color:var(--ink2);font-size:.78rem;margin-bottom:8px">'+r.o.toUpperCase()+(r.o==='allowed'&&r.uns?' · VIOLATION':'')+'</div>'+P.map(x=>'<p>'+x+'</p>').join('');
+ const ex=r.o!=='blocked';
+ const rec={id:'rec_'+(1000+r.idx*37),period:0,context:{task:e.task},action:Object.assign({},a),outcome:r.o,prob_allow:+r.p.toFixed(3),lam_at_decision:lam,cost:ex?+cost(a).toFixed(4):0,loss:{cost:ex?+Math.min(1,cost(a)/.5).toFixed(4):0}};
+ $('#dmJson').textContent=JSON.stringify(rec,null,2);
+ $('#dmJsonNote').textContent=ex?'The safety loss is attached when the ground truth resolves: '+(r.uns?'1.0 here':'0.0 here')+'. It is not known to the gateway at decision time.':'A blocked request never executes, so its losses are 0 and known immediately.';
+ $('#dmAcross').innerHTML=POL.map(p=>{const R=rule(p.lam,a);return'<tr class="'+(p.id===D.pol?'sel':'')+'"><td>'+p.name+'</td><td class="num">'+f3(p.lam,2)+'</td><td>'+(R.allow?'<span class="pill g">allow</span>':'<span class="pill">deny</span>')+'</td><td>'+R.why+'</td></tr>'}).join('');
+}
+function next(rs){
+ const n=rs.length,eps=D.eps,dT=.05/330;
+ let h='';
+ if(eps>0){const fl=(1/eps)*Math.log(1/dT)/(.9*n);
+  h+='<p>These '+n+' events are an illustration. A real period uses about 5,000 decisions. With only '+n+', the smallest possible upper bound on risk (the floor) would be about <strong>'+f3(fl,2)+'</strong>, far above the 0.05 safety limit, so Kairos could not certify a higher level and would <strong>hold</strong> λ where it is.</p>';
+  h+='<p>With a full period (n = 5000) and ε = '+f3(eps,2)+', the same floor is about <strong>'+f3((1/eps)*Math.log(1/dT)/(.9*5000),4)+'</strong>. That is under the limit, so a safe system can earn a higher level.</p>';
+ }else h+='<p>With the sandbox off, nothing that the rule denies is ever executed, so there is no evidence about a higher level and the importance weights have no valid bound. Kairos could not issue a certificate for any higher level, so λ cannot rise on evidence.</p>';
+ const viol=rs.filter(r=>r.o==='allowed'&&r.uns).length;
+ h+='<p>Every decision above would be written to the ledger with its exact probability. Violations like the '+viol+' in this draw are what the period certificate counts. If the rate across a full period is too high, the certificate does not clear and the level holds. If the environment also changed, the drift monitor resets it to the starter floor.</p>';
+ $('#dmNext').innerHTML=h;
+}
+$('#dmEvents').addEventListener('change',e=>{const id=e.target.dataset.id;if(!id)return;if(e.target.checked)D.sel.add(id);else D.sel.delete(id);renderEvents();render()});
+$('#dmPolicies').addEventListener('change',e=>{if(e.target.name==='pol'){D.pol=e.target.value;renderPolicies();render()}});
+$('#dmEps').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;D.eps=+b.dataset.e;[...$('#dmEps').children].forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+$('#dmRoll').onclick=()=>{D.seed++;render()};
+$('#dmTypical').onclick=()=>{D.sel=new Set(TYPICAL);renderEvents();render()};
+$('#dmAll').onclick=()=>{D.sel=new Set(EV.map(e=>e.id));renderEvents();render()};
+$('#dmNone').onclick=()=>{D.sel=new Set();renderEvents();render()};
+$('#dmBody').addEventListener('click',e=>{const tr=e.target.closest('tr');if(!tr)return;D.row=tr.dataset.id;render()});
+renderEvents();renderPolicies();render();
+
+/* deployment diagram */
+(function(){
+ const svg=$('#dmDiagram');if(!svg)return;
+ const NS='http://www.w3.org/2000/svg';
+ const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+ function el(t,at,tx){const e=document.createElementNS(NS,t);for(const k in at)e.setAttribute(k,at[k]);if(tx!=null)e.textContent=tx;return e}
+ function draw(){
+  svg.innerHTML='';
+  svg.appendChild(el('defs',{})).innerHTML='<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="'+cv('--ink2')+'"/></marker>';
+  const box=(x,y,w,h,title,sub,col,strong)=>{svg.appendChild(el('rect',{x:x,y:y,width:w,height:h,rx:4,fill:cv('--surface'),stroke:col,'stroke-width':strong?2.4:1.2}));
+   svg.appendChild(el('text',{x:x+w/2,y:y+24,'text-anchor':'middle','font-size':14,'font-weight':700,style:'fill:'+cv('--ink')},title));
+   sub.forEach((s,i)=>svg.appendChild(el('text',{x:x+w/2,y:y+44+i*16,'text-anchor':'middle','font-size':11.5},s)))};
+  const flow=(d,col,dash,cls)=>{svg.appendChild(el('path',{d:d,fill:'none',stroke:col,'stroke-width':1.8,'marker-end':'url(#ah)','stroke-dasharray':dash||'6 5',class:cls||'flowline'}))};
+  const lab=(x,y,t,anchor)=>svg.appendChild(el('text',{x:x,y:y,'font-size':11.5,'text-anchor':anchor||'middle',style:'fill:'+cv('--ink')},t));
+  const ink2=cv('--ink2'),blue=cv('--blue'),orange=cv('--orange'),green=cv('--green');
+  box(20,150,170,90,'AI agent',['LLM and tool-calling','runtime'],ink2);
+  box(290,105,220,175,'Kairos gateway',['policy enforcement point','1  validate request','2  rule R_λ at current λ','3  draw with π = (1−ε)R + ε','4  route and log'],blue,true);
+  box(650,25,260,95,'Production tools',['payments · database','email · admin APIs','real effect'],green);
+  box(650,150,260,90,'Sandbox executor',['mock tools','no real effect, outcome observed'],orange);
+  box(290,330,220,90,'Evidence ledger',['append-only JSONL','one line per decision'],ink2);
+  box(570,330,170,90,'Calibration job',['offline, once per period','certificate and new λ'],blue);
+  box(760,330,150,90,'Drift monitor',['period vs. previous','permutation test'],orange);
+  box(20,330,210,90,'Configuration',['tolerances α, budget δ','exploration ε, cost budget'],ink2);
+  flow('M190,180 H290',ink2);lab(240,168,'1 tool call');
+  flow('M290,225 H190',ink2,'3 4');lab(240,246,'result or denial');
+  flow('M510,150 L650,78',green);lab(588,100,'allowed',"middle");
+  flow('M510,215 L650,195',orange);lab(590,224,'sandboxed (ε)');
+  flow('M400,280 V330',ink2);lab(408,308,'every decision logged','start');
+  flow('M230,375 H262 V262 H290',ink2,'3 4');lab(244,352,'λ, ε, α','start');
+  flow('M510,375 H570',blue);lab(540,365,'period logs');
+  flow('M655,330 V300 H530 V250 H510',blue);lab(660,296,'new λ (/set_lambda)','start');
+  flow('M760,375 H740',orange);lab(750,365,'flag');
+  svg.appendChild(el('text',{x:20,y:20,'font-size':11.5},'Animated lines show the direction of flow. Green is the production path, orange the exploration path, blue the calibration path.'));
+ }
+ draw();
+ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',draw);
+ new MutationObserver(draw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme','data-look']});
+})();
+})();
+</script>
+
+</body></html>
